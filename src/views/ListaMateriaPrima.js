@@ -34,7 +34,6 @@ const ExcelSheet = ExportExcel.ExcelSheet
 const ExcelColumn = ExportExcel.ExcelColumn
 
 const ListaMateriaPrima = (props) => {
-    const { history} = props;
     const tableIcons = {
         Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
         Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),

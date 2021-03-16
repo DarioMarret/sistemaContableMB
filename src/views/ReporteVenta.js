@@ -18,26 +18,19 @@ import axios from 'axios'
 import { withRouter } from "react-router-dom";
 // import { Button } from '@material-ui/core'
 import ReactHTMLTableToExcel from 'react-html-table-to-excel';
-// import ExportExcel from 'react-export-excel'
-
-// const ExcelFile = ExportExcel.ExcelFile
-// const ExcelSheet = ExportExcel.ExcelSheet
-// const ExcelColumn = ExportExcel.ExcelColumn
 
 function Ventas() {
 
   const [desde, setdesde] = useState('')
   const [hasta, sethasta] = useState('')
   const [venta, setventa] = useState([])
-  var rest = '';
+  var rest = 0;
   var base = '';
 
   const Ventas_R = async () => {
     const ventas = await axios.post('http://54.156.16.123:4000/reporte/ventas', { desde, hasta })
-    // const ventas = await axios.post('http://localhost:4000/reporte/ventas',{desde, hasta})
     setventa(ventas.data)
   }
-
   return (
     <>
       <div className="content">
@@ -49,7 +42,6 @@ function Ventas() {
                 <p className="card-category">
                   Luv n Oven
                   </p>
-
                 <div className="bg-transparent" align="center">
                   <div className="row justify-content-start">
                     <div className="col-md-3">
@@ -113,9 +105,9 @@ function Ventas() {
                         <td>{iten.nombre}</td>
                         <td>{iten.anuladas}</td>
                         <td>Efectivo</td>
-                        <td>${iten.total.toFixed(2) ? base = (iten.total / 1.12).toFixed(2) : ''}</td>
-                        <td>${iten.impuesto}</td>
-                        <td>${iten.total.toFixed(2)}</td>
+                        <td>{iten.total.toFixed(2) ? base = (iten.total / 1.12).toFixed(2) : ''}</td>
+                        <td>{iten.impuesto}</td>
+                        <td>{iten.total.toFixed(2)}</td>
                       </tr>
                     ))
                     }

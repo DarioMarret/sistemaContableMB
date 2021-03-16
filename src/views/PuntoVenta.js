@@ -30,11 +30,14 @@ function PuntoVenta(props) {
     }, [estado])
     //dispatch
     const dispatch = useDispatch()
-    const handlebuscarProducto = (busqueda) => {
-        let empresa =  localStorage.getItem('empresa:')
-        dispatch(ObtenerProductosVenta(busqueda,empresa))
-        dispatch(Reset())
-        setstatus(false)
+    const handlebuscarProducto = (e) => {
+        if (e.charCode === 13){
+            let busqueda = e.target.value
+            let empresa =  localStorage.getItem('empresa:')
+            dispatch(ObtenerProductosVenta(busqueda,empresa))
+            dispatch(Reset())
+            setstatus(false)
+        }
     }
     const handleVerPedido = () => {
         let id_orden = document.getElementById('orden')
@@ -139,20 +142,21 @@ function PuntoVenta(props) {
         )
     }
     const Busqueda = () => {
-        return (
-            resultado.map((iten) => (
+        if(resultado !== 'Producto no Existe'){
+            return (
                 <>
-                    <tr key={iten.id}>
-                        <td><button className="btn btn-info" onClick={() => AgregarOrden(iten.producto, iten.precio_venta)}>Agregar</button></td>
+                    <tr key={resultado.id}>
+                        <td><button className="btn btn-info" onClick={() => AgregarOrden(resultado.producto, resultado.precio_venta)}>Agregar</button></td>
                         <td style={{ width: "15px" }}><Input className="form-control" type="text" placeholder="1" onChange={(e) => setcantidad(e.target.value)} /></td>
-                        <td>{iten.producto}</td>
-                        <td>{iten.unidad}</td>
-                        <td>{iten.precio_compra.toFixed(2)}</td>
-                        <td>{iten.precio_venta.toFixed(2)}</td>
+                        <td>{resultado.producto}</td>
+                        <td>{resultado.unidad}</td>
+                        <td>{resultado.precio_venta}</td>
                     </tr>
                 </>
-            ))
-        )
+            )
+        }else{
+            return null;
+        }
     }
     //momento
 
@@ -169,7 +173,7 @@ function PuntoVenta(props) {
                                         placeholder="Busca por Codigo o nombre de Producto"
                                         name="producto"
                                         type="text"
-                                        onChange={(e) => handlebuscarProducto(e.target.value)}
+                                        onKeyPress={(e) => handlebuscarProducto(e)}
                                     />
                                 </FormGroup>
                             </Col>

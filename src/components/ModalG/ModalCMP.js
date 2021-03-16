@@ -9,11 +9,17 @@ function ModalCMP(props) {
         let Categoria = e.target.value
         setcategoria(Categoria)
     }
+    const Categoria = async (data) => {
+        let empresa = localStorage.getItem('empresa:')
+        const rest = await axios.get('http://localhost:4000/inventario/categoria_materia_prima/' + empresa)
+        setcategoria(rest.data)
+    }
     const GrabarCategoriaMP=async(e)=>{
         e.preventDefault();
         let empresa = localStorage.getItem('empresa:')
         const resp = await axios.post('http://localhost:4000/inventario/categoriaMP',{empresa, categoria})
-        if (resp){
+        if (resp.data === 'ok'){
+            Categoria()
             setOpenModalCMP(false)
         }
     }

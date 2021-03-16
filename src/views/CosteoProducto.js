@@ -2,82 +2,158 @@ import React, {useState, useEffect} from 'react';
 import { withRouter } from 'react-router-dom'
 import { Card, CardHeader, CardBody, Table, Row, Col, Input, InputGroup, InputGroupAddon, InputGroupText, FormGroup } from "reactstrap";
 import axios from 'axios'
+import swal from 'sweetalert';
+
 
 function CosteoProducto(props) {
 
-    const [Costeo, setCosteo] = useState([])
+    const [ListaCosteo, setListaCosteo] = useState([])
     let Costo =[];
-
     function handleCosteoValue(){
         
+        VerCosteo()
         let ingrediente = document.getElementById('ingrediente')
         let cantidad = document.getElementById('cantidad')
         let und_med = document.getElementById('und_med')
-        let presentacion = document.getElementById('presentacion')
-        let p_compra = document.getElementById('p_compra')
-        let p_porcion = parseFloat(cantidad.value) * parseFloat(p_compra.value) / parseFloat(presentacion.value)
-        
+
+        let split = ingrediente.value.split(',')
+        let medida = und_med.value.split(',')
+     
         const info = {
-            ingrediente:ingrediente.value,
-            cantidad:cantidad.value,
-            und_med:und_med.value,
-            presentacion:presentacion.value,
-            p_compra:p_compra.value,
-            p_porcion:p_porcion
+            ingrediente_cst:split[1],
+            unidadMedida:medida[1],
+            cantidad_cst:cantidad.value,
+            id_unidad_medida_cst:medida[0],
+            codigo_producto_kx_cst:split[0],
+            empresa: localStorage.getItem('empresa:')
         }
-        setCosteo([...Costeo,info]);
-        console.log(Costeo);
+        localStorage.setItem('Costeo:',JSON.stringify([...Costo,info]));
         ingrediente.value = ""
         cantidad.value = ""
         und_med.value = ""
-        presentacion.value = ""
-        p_compra.value = ""
+        let array = JSON.parse(localStorage.getItem('Costeo:'))
+        setListaCosteo(array)
+    }
+    function VerCosteo() {
+        let iten = JSON.parse(localStorage.getItem('Costeo:'));
+            if(iten !== null){
+              Costo = iten;
+              setListaCosteo(Costo)
+            }
+      }
 
+    const [producto, setproducto] = useState({
+        codigo:'',
+        producto:''
+    })
+    const hanbleBusqueda=async()=>{
+        let producto = document.getElementById('buscar').value;
+        let empresa = localStorage.getItem('empresa:')
+        const resp = await axios.post('http://localhost:4000/costeo/producto',{producto, empresa})
+        console.log(resp.data)
+        if (resp.data === null){
+            swal({
+                text: "El Producto no se encuentra en Base",
+                icon: "warning",
+                timer: 2000,
+            }) 
+        }else{
+            setproducto(resp.data)
+            localStorage.setItem('codigo_producto_cst:',resp.data.codigo)
+            localStorage.setItem('producto:',resp.data.producto)
+        }
     }
 
-    var total =0;
-    Costeo.map(iten=>(total+=iten.p_porcion))
+    const [SelectProdutc, setSelectProdutc] = useState([])
+    const ProdutoMP=async()=>{
+        let empresa = localStorage.getItem('empresa:')
+        const resp = await axios.get('http://localhost:4000/costeo/producto/'+ empresa)
+        setSelectProdutc(resp.data)
+    }
+    const [medida, setmedida] = useState([])
+    const UnidadMedida = async () => {
+        const rest = await axios.get('http://localhost:4000/inventario/unidad')
+        setmedida(rest.data)
+    }
+
+    const EliminarDStora=async(ingrediente)=>{
+        let array = localStorage.getItem('Costeo:');
+        let Cost = []
+        Cost = JSON.parse(array).filter(carrito=> carrito.ingrediente_cst !== ingrediente)
+        await localStorage.setItem('Costeo:',JSON.stringify(Cost));
+        VerCosteo()
+    }
+    const GrabarCosteo=async()=>{
+        let iten = JSON.parse(localStorage.getItem('Costeo:'))
+        let codigo_producto_cst = localStorage.getItem('codigo_producto_cst:')
+        const resp = await axios.post('http://localhost:4000/costeo/receta',{iten, codigo_producto_cst})
+        if(resp.data === 'ok'){
+            localStorage.removeItem('Costeo:')
+            localStorage.removeItem('codigo_producto_cst:')
+            localStorage.removeItem('producto:')
+            VerCosteo()
+        }
+
+    }
+    useEffect(()=>{
+        ProdutoMP()
+        UnidadMedida()
+        VerCosteo()
+    },[])
 
     return (
         <div className="content">
             <Card>
                 <CardHeader>
-                    <h3>Costeo de Producto Terminado</h3>
-                    <Row>
+                    <h3>Costeo de Producto</h3>
+                    <Row className="d-flex align-items-center">
                     <Col md="3">
-                        <FormGroup>
-                            <label>Busca un producto</label>
-                            <InputGroup>
-                                <InputGroupAddon addonType="prepend">
-                                    <InputGroupText>
-                                        <i className="nc-icon nc-badge mx-3" ></i>
-                                    </InputGroupText>
-                                </InputGroupAddon>
-                                <Input
-                                    name="buscar"
-                                    defaultValue=""
-                                    type="text"
-                                    className="p-2"
-                                />
-                                </InputGroup>
-                        </FormGroup>
+                        <Input
+                            id="buscar"
+                            name="buscar"
+                            placeholder="Nombre producto o codigo"
+                        />
                     </Col>
+                    <Col md="3">
+                       <button className="btn btn-info" onClick={()=>hanbleBusqueda()} >Buscar Producto </button>
+                    </Col>
+                    <div style={{ height:'30px'}}>
+                        <h2 className="text-start">{producto.producto ? producto.producto : localStorage.getItem('producto:')}</h2>
+                    </div>
                     </Row>
                 </CardHeader>
-                <CardBody>
-                    <Row>
+                {
+                    producto.producto || localStorage.getItem('producto:')
+                    ?<>
+                    <CardBody>
+                    <Row className="d-flex align-items-center">
                         <Col md="2">
                         <FormGroup>
                             <label>Ingrediente</label>
-                                <Input
-                                    name="ingrediente"
-                                    id="ingrediente"
-                                    type="text"
-                                    className="p-2"
-                                />
+                                <select name="" id="ingrediente" className="form-control">
+                                    <option value="" >Seleccione un Producto</option>
+                                    {
+                                        SelectProdutc.map((iten)=>(
+                                            <option value={iten.codigo_mp+","+iten.producto_mp}>{iten.producto_mp}</option>
+                                        ))
+                                    }
+                                </select>
                         </FormGroup>
                         </Col>
-                        <Col md="1">
+                        <Col md="2">
+                        <FormGroup>
+                            <label>Und Med</label>
+                            <select name="" id="und_med" className="form-control">
+                                    <option value="">Seleccione un Medida</option>
+                                    {
+                                        medida.map((iten)=>(
+                                            <option value={iten.id+","+iten.medida}>{iten.medida}</option>
+                                        ))
+                                    }
+                                </select>
+                        </FormGroup>
+                        </Col>
+                        <Col md="2">
                         <FormGroup>
                             <label>Cantidad</label>
                                 <Input
@@ -89,81 +165,39 @@ function CosteoProducto(props) {
                         </FormGroup>
                         </Col>
                         <Col md="1">
-                        <FormGroup>
-                            <label>Und Med</label>
-                                <Input
-                                    name="und_med"
-                                    id="und_med"
-                                    type="text"
-                                    className="p-2"
-                                />
-                        </FormGroup>
-                        </Col>
-                        <Col md="1">
-                        <FormGroup>
-                            <label>Presentacion</label>
-                                <Input
-                                    name="presentacion"
-                                    id="presentacion"
-                                    type="text"
-                                    className="p-2"
-                                />
-                        </FormGroup>
-                        </Col>
-                        <Col md="1">
-                        <FormGroup>
-                            <label>Precio Compra</label>
-                                <Input
-                                    name="p_compra"
-                                    id="p_compra"
-                                    type="text"
-                                    className="p-2"
-                                />
-                        </FormGroup>
-                        </Col>
-                        <Col md="1" className="p-2">
-                        <FormGroup>
                             <button className="btn btn-info" onClick={()=>handleCosteoValue()}>Ingrediente</button>
-                        </FormGroup>
                         </Col>
                     </Row>
-                </CardBody>
+                    </CardBody>
+                    </> 
+                    :<></>
+                }
                 <CardBody>
                 <Row>
-                    <Col md="6">
+                    <Col md="6" className="text-center">
                     <Table responsive>
                         <thead className="bg-info">
                             <tr>
                                 <th>Ingrediente</th>
-                                <th>Cantidad</th>
                                 <th>Und Medida</th>
-                                <th>Presentacion</th>
-                                <th>P. Compra</th>
-                                <th>P. Por Porcion</th>
+                                <th>Cantidad</th>
+                                <th>Eliminar</th>
                             </tr>
                         </thead>
                         <tbody>
                         {
-                            Costeo.map((iten)=>(
+                            ListaCosteo.map((iten)=>(
                                 <tr>
-                                    <td>{iten.ingrediente}</td>
-                                    <td>{iten.cantidad}</td>
-                                    <td>{iten.und_med}</td>
-                                    <td>{iten.presentacion}</td>
-                                    <td>{iten.p_compra}</td>
-                                    <td>{iten.p_porcion.toFixed(2)}</td>
+                                    <td>{iten.ingrediente_cst}</td>
+                                    <td>{iten.unidadMedida}</td>
+                                    <td>{iten.cantidad_cst}</td>
+                                    <td><button className="btn btn-dark" onClick={()=>EliminarDStora(iten.ingrediente_cst)}><i className="nc-icon nc-simple-remove" /></button></td>
                                 </tr>
                             ))
                         }
-                        <tr style={{ padding:'0px'}}>
-                            <th colspan="2" className="table-active "></th>
-                            <th colspan="1" className="table-active "></th>
-                            <th colspan="1" className="table-active "></th>
-                            <th colspan="1" className="table-active text-center fs-4">Costeo</th>
-                            <th colspan="1" className="table-active text-start fs-4">${total.toFixed(2)}</th>
-                        </tr>
                         </tbody>
                     </Table>
+                    <button className="btn btn-info" onClick={()=>GrabarCosteo()}>Grabar Costeo</button>
                     </Col>
                     <Col md="6">
                     <div className="d-flex justify-content-end">

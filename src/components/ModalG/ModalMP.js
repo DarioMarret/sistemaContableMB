@@ -3,8 +3,8 @@ import { Modal, ModalBody, Button, Card, CardBody, FormGroup, Input, Row, Col } 
 import 'bootstrap/dist/css/bootstrap.css'
 import axios from 'axios';
 import swal from 'sweetalert';
-import { useDispatch, useSelector } from 'react-redux'
-// import {  } from '../../redux/ModalMP'
+import { useSelector } from 'react-redux'
+
 
 const ModalMP = (props) => {
     const { Title, setTitle, setOpenModal, OpenModal, ListaProductos } = props
@@ -91,6 +91,7 @@ const ModalMP = (props) => {
     useEffect(() => {
         setproductoE(editar_MP)
     }, [editar_MP])
+    
     const GrabarEdiMP =async(e)=>{
         e.preventDefault();
         let empresa = localStorage.getItem('empresa:')
@@ -112,7 +113,6 @@ const ModalMP = (props) => {
             [e.target.name]: e.target.value
         })
     }
-
 
     useEffect(() => {
         Categoria()

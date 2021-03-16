@@ -67,9 +67,6 @@ const GastosOtros = (props) => {
                                 </p>
                                 <div className="bg-transparent" align="center">
                                     <div className="row justify-content-start">
-                                        {/* <div className="col-md-2">
-                                            <input type="button" value="Ingresar gasto" className="btn btn-dark" onClick={() => setOpenModal(!OpenModal)} />
-                                        </div> */}
                                         <div className="col-md-3">
                                             <InputGroup>
                                                 <InputGroupAddon addonType="prepend">
@@ -135,12 +132,12 @@ const GastosOtros = (props) => {
                                                 <td>{iten.razon_sc}</td>
                                                 <td>{iten.cuenta}</td>
                                                 <td>{iten.detalle}</td>
-                                                <th className="text-end">${iten.gastos.toFixed(2)}</th>
-                                                <th className="text-end">${iten.impuesto.toFixed(2)}</th>
-                                                <th className="text-end">${iten.base12.toFixed(2)}</th>
-                                                <th className="text-end">${iten.base0.toFixed(2)}</th>
-                                                <th className="text-end">${iten.no_objeto_iva.toFixed(2)}</th>
-                                                <th className="text-end">${iten.sin_iva.toFixed(2)}</th>
+                                                <th className="text-end">{iten.gastos.toFixed(2)}</th>
+                                                <th className="text-end">{iten.impuesto.toFixed(2)}</th>
+                                                <th className="text-end">{iten.base12.toFixed(2)}</th>
+                                                <th className="text-end">{iten.base0.toFixed(2)}</th>
+                                                <th className="text-end">{iten.no_objeto_iva.toFixed(2)}</th>
+                                                <th className="text-end">{iten.sin_iva.toFixed(2)}</th>
                                             </tr>
                                         ))
                                         }
