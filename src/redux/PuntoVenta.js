@@ -1,4 +1,5 @@
 import axios from 'axios'
+import swal from 'sweetalert';
 
 //constantes
 const dataInicial = {
@@ -7,6 +8,7 @@ const dataInicial = {
     ordenAnterior: [],
     verPedido: [],
     ordenCliente:[],
+    cliente:[],
     echo: false
 }
 //tyoe
@@ -39,7 +41,7 @@ export default function PuntoVenta(state = dataInicial, action) {
         case ECHO:
             return { ...state, echo: action.payload }
         case ORDEN_CLIENTE:
-            return { ...state, echo: action.payload }
+            return { ...state, cliente: action.payload }
         case ACTUALIZAR_CANTIDAD:
             return { ...state, echo: action.payload }
 
@@ -51,10 +53,18 @@ export default function PuntoVenta(state = dataInicial, action) {
 export const ObtenerProductosVenta = (busqueda,empresa) => async (dispatch, getState) => {
     try {
         const rest = await axios.post('http://localhost:4000/ventaWeb/buscarproductoVenta', { busqueda, empresa})
-        dispatch({
-            type: OBTENER_PRODUCTO,
-            payload: rest.data
-        })
+        if(rest.data === 'Producto no Existe'){
+            swal({
+                text: "El Producto no se encuentra en Base",
+                icon: "warning",
+                timer: 2000,
+            })
+        }else{
+            dispatch({
+                type: OBTENER_PRODUCTO,
+                payload: rest.data
+            })
+        }
     } catch (error) {
         console.log(error);
     }
@@ -127,13 +137,19 @@ export const ActualizarCantidad = (id, cantidad, precioV, empresa) => async (dis
         
     }
 }
-export const AgregarCliente = (ruc, id_orden, empresa) => async (dispatch, getState) => {
+export const AgregarCliente = (ruc, empresa) => async (dispatch, getState) => {
     try {
-        const rest = await axios.post('http://localhost:4000/ventaWeb/AgregarCliente', { ruc, id_orden, empresa})
+        const rest = await axios.post('http://localhost:4000/ventaWeb/AgregarCliente', { ruc,empresa})
         if (rest.data !== 'no existe') {
             dispatch({
                 type: ORDEN_CLIENTE,
-                payload: true
+                payload: rest.data
+            })
+        }else{
+            swal({
+                text: "El Cliente no se encuentra en Base",
+                icon: "warning",
+                timer: 2000,
             })
         }
     } catch (error) {

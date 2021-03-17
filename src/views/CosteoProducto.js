@@ -34,6 +34,7 @@ function CosteoProducto(props) {
         let array = JSON.parse(localStorage.getItem('Costeo:'))
         setListaCosteo(array)
     }
+    
     function VerCosteo() {
         let iten = JSON.parse(localStorage.getItem('Costeo:'));
             if(iten !== null){
@@ -91,7 +92,12 @@ function CosteoProducto(props) {
             localStorage.removeItem('Costeo:')
             localStorage.removeItem('codigo_producto_cst:')
             localStorage.removeItem('producto:')
-            VerCosteo()
+            swal({
+                text: "Coste registrado",
+                icon: "success",
+                timer: 2000,
+            })
+            setListaCosteo([])
         }
 
     }

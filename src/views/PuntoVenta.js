@@ -4,9 +4,10 @@ import { Card, Table, FormGroup, Input, CardFooter, CardHeader, CardBody, CardTi
 import { useDispatch, useSelector } from 'react-redux';
 import {
     ObtenerProductosVenta, ObtenerUltimaOrden, AgregarProductoOrden,
-    VerProductoOrden, Reset, EliminarPedidoOrden, Echo, AgregarCliente,ActualizarCantidad
+    Reset, AgregarCliente,
 } from '../redux/PuntoVenta'
 import swal from 'sweetalert';
+import axios from 'axios';
 
 
 function PuntoVenta(props) {
@@ -24,6 +25,8 @@ function PuntoVenta(props) {
     const orden = useSelector(store => store.venta.ultimaorden)
     const VerOrden = useSelector(store => store.venta.verPedido)
     const estado = useSelector(store => store.venta.echo)
+    const clienteStore = useSelector(store => store.venta.cliente)
+    
     const [echo, setecho] = useState(false)
     useEffect(() => {
         setecho(!echo)
@@ -36,77 +39,61 @@ function PuntoVenta(props) {
             let empresa =  localStorage.getItem('empresa:')
             dispatch(ObtenerProductosVenta(busqueda,empresa))
             dispatch(Reset())
-            setstatus(false)
+            
         }
     }
-    const handleVerPedido = () => {
-        let id_orden = document.getElementById('orden')
-        let empresa =  localStorage.getItem('empresa:')
-        dispatch(VerProductoOrden(id_orden.value, empresa))
+    useEffect(()=>{
+        Busqueda()
         setstatus(true)
-    }
-    const [cantidad, setcantidad] = useState("1")
-    const AgregarOrden = (producto, precio_venta) => {
-        let id_orden = document.getElementById('orden')
-        let empleado = sessionStorage.getItem('usuario:');
-        let estado_orden = "pendiente"
-        let empresa =  localStorage.getItem('empresa:')
-        const Orden = [id_orden.value, cantidad, producto, precio_venta, empleado, estado_orden, empresa];
-        dispatch(AgregarProductoOrden(Orden))
-        console.log(Orden);
-    }
-    const EliminarOrden = (id) => {
-        let id_orden = document.getElementById('orden')
-        dispatch(EliminarPedidoOrden(id))
-        if (echo) {
-            swal({
-                text: "Producto Eliminado",
-                icon: "success",
-            }).then((response) => {
-                if (response) {
-                    dispatch(Echo())
-                    let empresa =  localStorage.getItem('empresa:')
-                    dispatch(VerProductoOrden(id_orden.value, empresa))
-                }
-            })
-        }
-    }
-    const ActualizarCantidad1 = (e, id, precioV) => {
-        if(e.charCode === 13){
-            let cantidad = e.target.value
-            console.log(id, cantidad, precioV);
-            let empresa =  localStorage.getItem('empresa:')
-            dispatch(ActualizarCantidad(id, cantidad, precioV,empresa))
-            if(echo){
-                let id_orden = document.getElementById('orden')
-                let empresa =  localStorage.getItem('empresa:')
-                dispatch(VerProductoOrden(id_orden.value,empresa))
-                dispatch(Echo())
-            }
-        }
+    },[resultado])
+    const handleVerPedido = () => {
+        VerTienda()
+        setstatus(true)
     }
     const [cliente, setcliente] = useState(false)
     const handleCliente=(e)=>{
         if(e.charCode === 13){
             if(e.target.value !== ''){
                 let ruc = e.target.value
-                let id_orden = document.getElementById('orden')
                 let empresa =  localStorage.getItem('empresa:')
-                dispatch(AgregarCliente(ruc,id_orden.value, empresa))
-                dispatch(VerProductoOrden(id_orden.value,empresa))
-                if(echo){
-                    setcliente(true)
-                    dispatch(Echo())
-                }
+                dispatch(AgregarCliente(ruc, empresa))
+                setcliente(true)
             }else{
                 setcliente(false)
             }
             
         }
     }
-    const hanbleGenerarPago=()=>{
-        let id_orden = document.getElementById('orden')
-        let empresa =  localStorage.getItem('empresa:')
+    const [data, setdata] = useState({
+        nombre:'',
+        cedula:''
+    })
+    useEffect(()=>{
+        ClienteHandle()
+    },[clienteStore])
+    const ClienteHandle=()=>{
+        localStorage.setItem('Datos:',JSON.stringify(clienteStore))
+        let data = JSON.parse(localStorage.getItem('Datos:'))
+        setdata(data)
+    }
+    const hanbleGenerarPago=async()=>{
+        let id_orden = document.getElementById('orden').value
+        let datos = JSON.parse(localStorage.getItem('Datos:'))
+        let iten = JSON.parse(localStorage.getItem('Orden_'+id_orden+':'))
+        let documento = document.getElementById('documento').value
+        let tipo_pago = document.getElementById('tipo_pago').value
+        const rest = await axios.post("http://localhost:4000/pagos/factura",{datos, iten, documento, tipo_pago, Fecha_actual})
+        if(rest.data === 'ok'){
+            localStorage.removeItem('Orden_'+id_orden+':')
+            localStorage.removeItem('Datos:')
+            swal({
+                text: "Listo Factura Generada",
+                icon: "success",
+                timer: 2000,           
+            })
+            setListarIten([])
+        }
+    
     }
     useEffect(() => {
         let empresa =  localStorage.getItem('empresa:')
@@ -116,49 +103,149 @@ function PuntoVenta(props) {
         setOrdenV(orden)
     }, [orden])
 
-    var rest = 0.0;
+    let rest = 0;
     let nombre = [];
     nombre =  VerOrden.map(iten => {
         return iten.cliente
     },0)
-    
 
-    VerOrden.map(iten => rest += iten.total)
-
+    const [ListarIten, setListarIten] = useState([])
     const VerPedido = () => {
-        return (
-            VerOrden.map((iten) => (
-                <>
-                    <tr key={iten.id}>
-                        <td style={{ width: "15px" }}><button className="btn btn-dark" onClick={() => EliminarOrden(iten.id)}><i className="nc-icon nc-simple-remove" /></button></td>
-                        <td style={{ width: "100px" }}><Input className="form-control" type="text" defaultValue={iten.cantidad} onKeyPress={(e) => ActualizarCantidad1(e,iten.id,iten.precio_venta)} /></td>
-                        <td>{iten.producto}</td>
-                        <td>{iten.unidad}</td>
-                        <td>{iten.precio_venta.toFixed(2)}</td>
-                        <td>{iten.total.toFixed(2)}</td>
-                    </tr>
-                </>
-            ))
-        )
-    }
-    const Busqueda = () => {
-        if(resultado !== 'Producto no Existe'){
+
+        if(ListarIten){
+            ListarPrecio(ListarIten)
             return (
-                <>
-                    <tr key={resultado.id}>
-                        <td><button className="btn btn-info" onClick={() => AgregarOrden(resultado.producto, resultado.precio_venta)}>Agregar</button></td>
-                        <td style={{ width: "15px" }}><Input className="form-control" type="text" placeholder="1" onChange={(e) => setcantidad(e.target.value)} /></td>
-                        <td>{resultado.producto}</td>
-                        <td>{resultado.unidad}</td>
-                        <td>{resultado.precio_venta}</td>
-                    </tr>
-                </>
+                ListarIten.map((iten) => (
+                    <>
+                        <tr key={iten.id}>
+                            <td style={{ width: "10px" }}><button className="btn btn-dark" onClick={() => EliminarDStora(iten.id)}>
+                            <i className="nc-icon nc-simple-remove" /></button></td>
+                            <td style={{ width: "100px" }}>
+                            <Input className="form-control" type="text" defaultValue={iten.cantidad} onKeyPress={(e) => ActualizarCantidad1(e,iten.id,iten.precio_venta)} /></td>
+                            <td>{iten.producto}</td>
+                            <td>{iten.unidad}</td>
+                            <td>{iten.precio_venta.toFixed(2)}</td>
+                            <td>{(iten.precio_venta * iten.cantidad).toFixed(2)}</td>
+                        </tr>
+                    </>
+                ))
             )
         }else{
             return null;
         }
     }
+    const [Total, setTotal] = useState(0)
+    const ListarPrecio=(ListarIten)=>{
+        ListarIten.forEach (function(numero){
+            rest += numero.precio_venta * numero.cantidad
+        });
+        setTotal(rest)
+    }
+    const [cantidad, setcantidad] = useState("1")
+    const Busqueda = () => {
+        if(resultado.length === 0){
+            return null
+        }else{
+            TiendaIten(resultado)
+        }
+    }
     //momento
+    let PViten = []
+    function TiendaIten(resultado){
+        VerTienda()
+
+        const info = {
+            codigo: resultado.codigo,
+            cantidad:cantidad,
+            empresa: resultado.empresa,
+            id: resultado.id,
+            iva_venta: resultado.iva_venta,
+            precio_venta: resultado.precio_venta,
+            producto: resultado.producto,
+            unidad: resultado.unidad,
+        }
+
+        const existe = PViten.some(iten => iten.id === info.id)
+        if(existe){
+            //Actualizar Cantidad
+            const Product = PViten.map(iten =>{
+                if(iten.id === info.id){
+                    iten.cantidad++;
+                    return iten; // restorna la cantidad actualizada
+                }else{
+                    return iten; //retorna la objetos que no son actualizado
+                }
+            })
+            let orden = document.getElementById('orden')
+            PViten = [...Product];
+            localStorage.setItem('Orden_'+orden.value+':',JSON.stringify(PViten))
+            let array = JSON.parse(localStorage.getItem('Orden_'+orden.value+':'))
+            setListarIten(array)
+        }else{
+            //Agregamos a la tienda
+            let orden = document.getElementById('orden')
+            localStorage.setItem('Orden_'+orden.value+':',JSON.stringify([...PViten,info]))
+            let array = JSON.parse(localStorage.getItem('Orden_'+orden.value+':'))
+            setListarIten(array)
+        }
+    }
+    function VerTienda() {
+        let orden = document.getElementById('orden')
+        let iten = JSON.parse(localStorage.getItem('Orden_'+orden.value+':'));
+            if(iten !== null){
+                PViten = iten;
+                setListarIten(PViten)
+            }
+    }
+    const EliminarDStora=(id)=>{
+        let orden = document.getElementById('orden')
+        let iten = JSON.parse(localStorage.getItem('Orden_'+orden.value+':'));
+        let Cost = []
+        Cost = iten.filter(tienda=> tienda.id !== id)
+        localStorage.setItem('Orden_'+orden.value+':',JSON.stringify(Cost));
+        VerTienda()
+    }
+    const ActualizarCantidad1 = (e, id) => {
+        if(e.charCode === 13){
+            VerTienda()
+            const existe = PViten.some(iten => iten.id === id)
+            if(existe){
+                const Actualizar = PViten.map(iten =>{
+                    if(iten.id === id){
+                        iten.cantidad = e.target.value;
+                        return iten; // restorna la cantidad actualizada
+                    }else{
+                        return iten; //retorna la objetos que no son actualizado
+                    }
+                })
+                let orden = document.getElementById('orden')
+                PViten = [...Actualizar];
+                localStorage.setItem('Orden_'+orden.value+':',JSON.stringify(PViten))
+                let array = JSON.parse(localStorage.getItem('Orden_'+orden.value+':'))
+                setListarIten(array)
+            }
+        }
+    }
+    const OrdenDespacho=async()=>{
+        let orden = document.getElementById('orden')
+        let ordenn = orden.value;
+        let iten = JSON.parse(localStorage.getItem('Orden_'+orden.value+':'))
+        const rest = await axios.post("http://localhost:4000/orden/despacho",{iten, ordenn})
+        if(rest.data === 'ok'){
+            swal({
+                text: "Listo su orden esta siendo procesada",
+                icon: "success",
+                timer: 2000,           
+            })
+        }else{
+            swal({
+                text: "!Upss algo salio mal! ",
+                icon: "warning",
+                timer: 2000,           
+            })
+
+        }
+    }
 
     return (
         <div className="content">
@@ -199,7 +286,7 @@ function PuntoVenta(props) {
                                 <Table hover responsive>
                                     <thead className="bg-info p-2" style={{ fontWeight: 'bold' }}>
                                         <tr>
-                                            <th>Accion</th>
+                                            <th>Eliminar</th>
                                             <th>Cant.</th>
                                             <th>Producto</th>
                                             <th>UND</th>
@@ -207,12 +294,11 @@ function PuntoVenta(props) {
                                             <th>TOTAL</th>
                                         </tr>
                                     </thead>
-                                    <tbody >
-                                        {
-                                            status
-                                                ? <VerPedido />
-                                                : <Busqueda />
-                                        }
+                                    <tbody>
+                                    {
+                                        status ? <VerPedido /> : ''
+                                    }
+                                         
                                     </tbody>
                                 </Table>
                             </div>
@@ -223,19 +309,22 @@ function PuntoVenta(props) {
                                 <Col md="4">
                                     <button className="form-control btn btn-info" onClick={()=>hanbleGenerarPago()}>Generar Factura</button>
                                 </Col>
+                                <Col md="4">
+                                    <button className="form-control btn btn-info" onClick={()=>OrdenDespacho()}>Orden Despacho</button>
+                                </Col>
                             </Row>
                         </div>
                     </Col>
                     <Col md="4">
                         <CardHeader className="bg-info text-center">
-                            <CardTitle><h2>{rest === 0 ? "$0.0" : "$" + rest.toFixed(2)}</h2></CardTitle>
+                            <CardTitle><h2>{Total === 0 ? "$0.0" : "$" + Total.toFixed(2)}</h2></CardTitle>
                         </CardHeader>
                         <CardBody>
                             <Row>
                                 <Col md="6">
                                     <FormGroup>
                                         <label>DOCUMENTO</label>
-                                        <select name="documento" className="form-control">
+                                        <select name="documento" id="documento" className="form-control">
                                             <option value="factura">FACTURA</option>
                                             <option value="ticket">TICKET</option>
                                         </select>
@@ -244,7 +333,7 @@ function PuntoVenta(props) {
                                 <Col md="6">
                                     <FormGroup>
                                         <label>TIPO DE PAGO</label>
-                                        <select name="tipo_pago" className="form-control">
+                                        <select name="tipo_pago" id="tipo_pago" className="form-control">
                                             <option value="efectivo">EFECTIVO</option>
                                             <option value="tarjeta">TARJETA</option>
                                         </select>
@@ -287,7 +376,7 @@ function PuntoVenta(props) {
                                     <FormGroup>
                                         <label>NOMBRE CLIENTE</label>
                                         <Input
-                                        defaultValue={nombre[0] === '' ? '' : nombre[0] }
+                                            defaultValue={data.nombre}
                                             name="fecha"
                                             type="text"
                                             disabled
@@ -322,19 +411,19 @@ function PuntoVenta(props) {
                             <Col md="12">
                                 <div className="d-flex justify-content-between">
                                     <h6>SUB-TOTAL</h6>
-                                    <h6>$31.30</h6>
+                                    <h6>{Total === 0 ? "$0.0" : "$" + (Total / 1.12).toFixed(2)}</h6>
                                 </div>
                             </Col>
                             <Col md="12">
                                 <div className="d-flex justify-content-between">
                                     <h6>IVA (12%)</h6>
-                                    <h6>$4.26</h6>
+                                    <h6>{Total === 0 ? "$0.0" : "$" + (Total - Total / 1.12).toFixed(2)}</h6>
                                 </div>
                             </Col>
                             <Col md="12">
                                 <div className="d-flex justify-content-between">
                                     <h6>TOTAL</h6>
-                                    <h6>$35.53</h6>
+                                    <h6>{Total === 0 ? "$0.0" : "$" + Total.toFixed(2)}</h6>
                                 </div>
                             </Col>
                         </CardFooter>
