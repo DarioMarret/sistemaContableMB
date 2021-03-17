@@ -57,7 +57,7 @@ function Dashboard () {
                     </Col>
                     <Col md="8" xs="7">
                       <div className="numbers">
-                        <p className="card-category">VENTAS</p>
+                        <p className="card-category">VENTASs</p>
                         <CardTitle tag="p">${ventas.Total}</CardTitle>
                         <p />
                       </div>
