@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 import axios from 'axios'
-import { Card, CardHeader, CardBody, CardFooter,InputGroupText, Row, Col, Input, FormGroup,InputGroup,InputGroupAddon } from 'reactstrap'
+import { Card, Button, InputGroupText, Row, Col, Input, FormGroup,InputGroup,InputGroupAddon } from 'reactstrap'
 
-function EditarProveedor(props) {
-    const { location, history } = props
+function NuevoProveedor(props) {
+    const { history } = props
 
 
     const [proveedores, setproveedores] = useState({
-        id: '',
-        empresa: '',
+        empresa: localStorage.getItem('empresa:'),
         ruc: '',
         razon_social: '',
         telefono: '',
@@ -23,19 +22,19 @@ function EditarProveedor(props) {
         tipo_cuenta: '',
         numero_cuenta: ''
     })
-    const EditarProveedo = async () => {
-        let path = location.pathname
-        let id = path.split("/")
-        let empresa = localStorage.getItem('empresa:')
-        const res = await axios.get('http://34.196.59.251:4000/proveedores/id/' + id[3] + '/' + empresa)
-        if (res.data) {
-            setproveedores(res.data)
+    
+    const handleNuevoProduct=(e)=>{
+        setproveedores({
+            ...proveedores,
+            [e.target.name]:e.target.value
+        })
+    }
+    const ListaProveedores=async()=>{
+        const {data} = await axios.post('http://34.196.59.251:4000/proveedores/proveedor',{proveedores})
+        if(data === "ok"){
+            history.push('/admin/proveedores')
         }
     }
-    console.log(proveedores)
-    useEffect(() => {
-        EditarProveedo()
-    }, [])
 
     return (
         <div className="content">
@@ -60,6 +59,7 @@ function EditarProveedor(props) {
                                 defaultValue={proveedores.ruc}
                                 type="text"
                                 className="p-2"
+                                onChange={(e)=>handleNuevoProduct(e)}
                             />
                             </InputGroup>
                         </FormGroup>
@@ -78,6 +78,7 @@ function EditarProveedor(props) {
                                 defaultValue={proveedores.razon_social}
                                 type="text"
                                 className="p-2"
+                                onChange={(e)=>handleNuevoProduct(e)}
                             /></InputGroup>
                         </FormGroup>
                     </Col>
@@ -95,6 +96,7 @@ function EditarProveedor(props) {
                                 defaultValue={proveedores.telefono}
                                 type="text"  
                                 className="p-2"
+                                onChange={(e)=>handleNuevoProduct(e)}
                             />
                             </InputGroup>
                         </FormGroup>
@@ -112,7 +114,8 @@ function EditarProveedor(props) {
                                 name="direccion"
                                 defaultValue={proveedores.direccion}
                                 type="text" 
-                                className="p-2"                             
+                                className="p-2"  
+                                onChange={(e)=>handleNuevoProduct(e)}                           
                             />
                             </InputGroup>
                         </FormGroup>
@@ -129,6 +132,7 @@ function EditarProveedor(props) {
                                 defaultValue={proveedores.email}
                                 type="text"
                                 className="p-2"
+                                onChange={(e)=>handleNuevoProduct(e)}
                             />
                             </InputGroup>
                         </FormGroup>
@@ -147,6 +151,7 @@ function EditarProveedor(props) {
                                 defaultValue={proveedores.credito}
                                 type="text" 
                                 className="p-2"
+                                onChange={(e)=>handleNuevoProduct(e)}
                             />
                             </InputGroup>
                         </FormGroup>
@@ -165,6 +170,7 @@ function EditarProveedor(props) {
                                 defaultValue={proveedores.pagina_web}
                                 type="text"
                                 className="p-2"
+                                onChange={(e)=>handleNuevoProduct(e)}
                             />
                             </InputGroup>
                         </FormGroup>
@@ -183,6 +189,7 @@ function EditarProveedor(props) {
                                 defaultValue={proveedores.celular}
                                 type="text" 
                                 className="p-2" 
+                                onChange={(e)=>handleNuevoProduct(e)}
                             />
                             </InputGroup>
                         </FormGroup>
@@ -201,6 +208,7 @@ function EditarProveedor(props) {
                                 defaultValue={proveedores.contacto}
                                 type="text"  
                                 className="p-2"
+                                onChange={(e)=>handleNuevoProduct(e)}
                             />
                             </InputGroup>
                         </FormGroup>
@@ -219,6 +227,7 @@ function EditarProveedor(props) {
                                 defaultValue={proveedores.banco}
                                 type="text"
                                 className="p-2"
+                                onChange={(e)=>handleNuevoProduct(e)}
                             />
                             </InputGroup>
                         </FormGroup>
@@ -237,6 +246,7 @@ function EditarProveedor(props) {
                                 type="text"
                                 defaultValue={proveedores.tipo_cuenta}
                                 className="p-2"
+                                onChange={(e)=>handleNuevoProduct(e)}
                             />
                             </InputGroup>
                         </FormGroup>
@@ -255,6 +265,7 @@ function EditarProveedor(props) {
                                 defaultValue={proveedores.numero_cuenta}
                                 type="text" 
                                 className="p-2"
+                                onChange={(e)=>handleNuevoProduct(e)}
                             />
                             </InputGroup>
                         </FormGroup>
@@ -272,6 +283,7 @@ function EditarProveedor(props) {
                                 id="razon"
                                 type="text"
                                 className="p-2"
+                                onChange={(e)=>handleNuevoProduct(e)}
                             />
                             </InputGroup>
                         </FormGroup>
@@ -289,14 +301,25 @@ function EditarProveedor(props) {
                                 id="razon"
                                 type="text"
                                 className="p-2"
+                                onChange={(e)=>handleNuevoProduct(e)}
                             />
                             </InputGroup>
                         </FormGroup>
                     </Col>
                 </Row>
+                <Col className="d-flex justify-content-end">
+                    <Button
+                        className="btn-round group-control"
+                        color="primary"
+                        type="submit"
+                        onClick={() =>ListaProveedores() }
+                    >
+                        Grabar Cambios
+                    </Button>
+                </Col>
             </Card>
         </div>
     );
 }
 
-export default withRouter(EditarProveedor);
+export default withRouter(NuevoProveedor);

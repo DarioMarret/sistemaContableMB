@@ -12,6 +12,7 @@ function Sidebar(props) {
       className="sidebar"
       data-color={props.bgColor}
       data-active-color={props.activeColor}
+      toggler="#reporte"
     >
       <div className="logo">
         <a
@@ -29,6 +30,19 @@ function Sidebar(props) {
               <p>Dashboard</p>
             </NavLink>
           </li>
+
+          <li>
+            <NavLink to="" id="caja"><i className="nc-icon nc-money-coins"></i><p>Flujo de Caja chica</p></NavLink>
+          </li>
+          <UncontrolledCollapse toggler="#caja">
+          <li className={props.location.pathname === "/admin/flujoCaja" ? "active" : ""}>
+            <NavLink to="/admin/flujoCaja" className="nav-link " activeClassName="active">
+            <i className="nc-icon nc-minimal-right" style={{ fontSize: "15px" }}></i>
+            <p>M. de caja Chica</p>
+            </NavLink>
+            </li>
+          </UncontrolledCollapse>
+
           <li >
             <NavLink to="" id="reporte"><i className="nc-icon nc-book-bookmark"></i><p>REPORTE</p></NavLink>
           </li>
@@ -66,12 +80,6 @@ function Sidebar(props) {
             <NavLink to="/admin/traspazo" className="nav-link " activeClassName="active" >
               <i className="nc-icon nc-minimal-right" style={{ fontSize: "15px" }}></i>
               <p>Traspazo</p>
-            </NavLink>
-            </li>
-            <li className={props.location.pathname === "/admin/fisico" ? "active" : ""}>
-            <NavLink to="/admin/fisico" className="nav-link " activeClassName="active" >
-              <i className="nc-icon nc-minimal-right" style={{ fontSize: "15px" }}></i>
-              <p>Fisico</p>
             </NavLink>
             </li>
             <li className={props.location.pathname === "/admin/kardex" ? "active" : ""}>
@@ -161,27 +169,24 @@ function Sidebar(props) {
             <p>Punto de Venta</p>
             </NavLink>
             </li>
-            <li className={props.location.pathname === "/admin/icons" ? "active" : ""}>
-            <NavLink to="/admin/icons" className="nav-link " activeClassName="active">
+          </UncontrolledCollapse>
+          <li>
+            <NavLink to="" id="contabilidad"><i className="nc-icon nc-money-coins"></i><p>Contabilidad</p></NavLink>
+          </li>
+          <UncontrolledCollapse toggler="#contabilidad">
+          <li className={props.location.pathname === "/admin/flujoCaja" ? "active" : ""}>
+            <NavLink to="/admin/flujoCaja" className="nav-link " activeClassName="active">
             <i className="nc-icon nc-minimal-right" style={{ fontSize: "15px" }}></i>
-            <p>icons</p>
+            <p>Libro Diario</p>
             </NavLink>
             </li>
-            {/* <NavLink to="/admin/lui-ventas" className="nav-link " activeClassName="active">
+            <li className={props.location.pathname === "/admin/EsatdoR" ? "active" : ""}>
+            <NavLink to="/admin/EsatdoR" className="nav-link " activeClassName="active">
             <i className="nc-icon nc-minimal-right" style={{ fontSize: "15px" }}></i>
-            <p>venta Lui e lei</p>
+            <p>Esatdo Resultado</p>
             </NavLink>
-            <NavLink to="/admin/lui-otros" className="nav-link " activeClassName="active">
-            <i className="nc-icon nc-minimal-right" style={{ fontSize: "15px" }}></i>
-            <p>otos gas lui e lei</p>
-            </NavLink>
-            <NavLink to="/admin/lui-gastos" className="nav-link " activeClassName="active">
-            <i className="nc-icon nc-minimal-right" style={{ fontSize: "15px" }}></i>
-            <p>gastos lui e lei</p>
-            </NavLink> */}
-            
+            </li>
           </UncontrolledCollapse>
-
         </Nav>
       </div>
     </div>

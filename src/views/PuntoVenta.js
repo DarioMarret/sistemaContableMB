@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { withRouter, NavLink } from "react-router-dom";
 import { Card, Table, FormGroup, Input, CardFooter, CardHeader, CardBody, CardTitle, Row, Col } from "reactstrap";
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    ObtenerProductosVenta, ObtenerUltimaOrden, AgregarProductoOrden,
+    ObtenerProductosVenta, ObtenerUltimaOrden, GenerarPdf,
     Reset, AgregarCliente,
 } from '../redux/PuntoVenta'
 import swal from 'sweetalert';
 import axios from 'axios';
-
+import ReactToPrint from 'react-to-print';
+const empty = require('is-empty');
 
 function PuntoVenta(props) {
+    const componentRef = useRef();
+
     //fecha actual
     var fecha = new Date()
     let mes = fecha.getMonth()+1
@@ -32,20 +35,24 @@ function PuntoVenta(props) {
         setecho(!echo)
     }, [estado])
     //dispatch
+    const [producto, setproducto] = useState("")
     const dispatch = useDispatch()
     const handlebuscarProducto = (e) => {
-        if (e.charCode === 13){
-            let busqueda = e.target.value
-            let empresa =  localStorage.getItem('empresa:')
-            dispatch(ObtenerProductosVenta(busqueda,empresa))
-            dispatch(Reset())
-            
-        }
+        // if (e.charCode === 13){
+        // }
+        setproducto(e.target.value)
+        let busqueda = e.target.value
+        let empresa =  localStorage.getItem('empresa:')
+        dispatch(ObtenerProductosVenta(busqueda,empresa))
+        dispatch(Reset())  
+       
     }
     useEffect(()=>{
-        Busqueda()
-        setstatus(true)
+        // Busqueda()
+        // setstatus(true)
+        console.log(resultado)
     },[resultado])
+
     const handleVerPedido = () => {
         VerTienda()
         setstatus(true)
@@ -82,16 +89,42 @@ function PuntoVenta(props) {
         let iten = JSON.parse(localStorage.getItem('Orden_'+id_orden+':'))
         let documento = document.getElementById('documento').value
         let tipo_pago = document.getElementById('tipo_pago').value
-        const rest = await axios.post("http://localhost:4000/pagos/factura",{datos, iten, documento, tipo_pago, Fecha_actual})
-        if(rest.data === 'ok'){
-            localStorage.removeItem('Orden_'+id_orden+':')
-            localStorage.removeItem('Datos:')
+
+        if( !empty(iten) && !empty(datos)){
+            const {data} = await axios.post("http://34.196.59.251:4000/pagos/factura",{datos, iten, documento, tipo_pago, Fecha_actual,id_orden,Total})
+            if(data !== 'Error'){
+                const {numero_factura,datos,iten} = data
+                await axios.get('http://localhost/impresora/factura.php', {
+                    params: {
+                        'numero_factura': JSON.stringify(numero_factura),
+                        'datos': JSON.stringify([datos]),
+                        'iten': JSON.stringify(iten),
+                    }
+                })
+                localStorage.removeItem('Orden_'+id_orden+':')
+                localStorage.removeItem('Datos:')
+                swal({
+                    text: "Listo Factura Generada",
+                    icon: "success",
+                    timer: 2000,           
+                })
+                setListarIten([])
+                setdata([])
+                let empresa =  localStorage.getItem('empresa:')
+                dispatch(ObtenerUltimaOrden(empresa))
+            }else{
+                swal({
+                    text: "Faltan Valores Datos de clienente",
+                    icon: "warning",
+                    timer: 2000,           
+                })    
+            }
+        }else{
             swal({
-                text: "Listo Factura Generada",
-                icon: "success",
+                text: "Faltan Valores Datos de clienente o producto",
+                icon: "warning",
                 timer: 2000,           
-            })
-            setListarIten([])
+            }) 
         }
     
     }
@@ -101,6 +134,7 @@ function PuntoVenta(props) {
     }, [])
     useEffect(() => {
         setOrdenV(orden)
+        handleVerPedido()
     }, [orden])
 
     let rest = 0;
@@ -151,42 +185,51 @@ function PuntoVenta(props) {
     }
     //momento
     let PViten = []
-    function TiendaIten(resultado){
-        VerTienda()
-
-        const info = {
-            codigo: resultado.codigo,
-            cantidad:cantidad,
-            empresa: resultado.empresa,
-            id: resultado.id,
-            iva_venta: resultado.iva_venta,
-            precio_venta: resultado.precio_venta,
-            producto: resultado.producto,
-            unidad: resultado.unidad,
-        }
-
-        const existe = PViten.some(iten => iten.id === info.id)
-        if(existe){
-            //Actualizar Cantidad
-            const Product = PViten.map(iten =>{
-                if(iten.id === info.id){
-                    iten.cantidad++;
-                    return iten; // restorna la cantidad actualizada
-                }else{
-                    return iten; //retorna la objetos que no son actualizado
+    function TiendaIten(codigo,empresa,id,iva_venta,precio_venta,producto,unidad){
+        let pro = document.getElementById('producto')
+        pro.value = ""
+        if(resultado ){
+            VerTienda()
+            const info = {
+                codigo: codigo,
+                cantidad:cantidad,
+                empresa: empresa,
+                id: id,
+                iva_venta: iva_venta,
+                precio_venta: precio_venta,
+                producto: producto,
+                unidad: unidad,
+                emision: pemision.establecimiento_de +"-"+ pemision.punto_emision_de
+            }
+    
+            const existe = PViten.some(iten => iten.id === info.id)
+            if(existe){
+                //Actualizar Cantidad
+                const Product = PViten.map(iten =>{
+                    if(iten.id === info.id){
+                        iten.cantidad++;
+                        return iten; // restorna la cantidad actualizada
+                    }else{
+                        return iten; //retorna la objetos que no son actualizado
+                    }
+                })
+                let orden = document.getElementById('orden')
+                if(!empty(orden.value)){
+                    PViten = [...Product];
+                    localStorage.setItem('Orden_'+orden.value+':',JSON.stringify(PViten))
+                    let array = JSON.parse(localStorage.getItem('Orden_'+orden+':'))
+                    setListarIten(array)
                 }
-            })
-            let orden = document.getElementById('orden')
-            PViten = [...Product];
-            localStorage.setItem('Orden_'+orden.value+':',JSON.stringify(PViten))
-            let array = JSON.parse(localStorage.getItem('Orden_'+orden.value+':'))
-            setListarIten(array)
-        }else{
-            //Agregamos a la tienda
-            let orden = document.getElementById('orden')
-            localStorage.setItem('Orden_'+orden.value+':',JSON.stringify([...PViten,info]))
-            let array = JSON.parse(localStorage.getItem('Orden_'+orden.value+':'))
-            setListarIten(array)
+            }else{
+                //Agregamos a la tienda
+                let orden = document.getElementById('orden')
+                if(!empty(orden.value)){
+                    localStorage.setItem('Orden_'+orden.value+':',JSON.stringify([...PViten,info]))
+                    let array = JSON.parse(localStorage.getItem('Orden_'+orden.value+':'))
+                    setListarIten(array)
+                }
+            }
+            setproducto("")
         }
     }
     function VerTienda() {
@@ -230,7 +273,7 @@ function PuntoVenta(props) {
         let orden = document.getElementById('orden')
         let ordenn = orden.value;
         let iten = JSON.parse(localStorage.getItem('Orden_'+orden.value+':'))
-        const rest = await axios.post("http://localhost:4000/orden/despacho",{iten, ordenn})
+        const rest = await axios.post("http://34.196.59.251:4000/orden/despacho",{iten, ordenn})
         if(rest.data === 'ok'){
             swal({
                 text: "Listo su orden esta siendo procesada",
@@ -246,22 +289,53 @@ function PuntoVenta(props) {
 
         }
     }
+    const [pemision, setpemision] = useState([])
+    const PuntoEmision=async()=>{
+        let empresa = localStorage.getItem('empresa:')
+        const {data} = await axios.get("http://34.196.59.251:4000/ventaWeb/datosempresa/"+empresa)
+        if(data){
+            setpemision(data)
+        }
+    }
+    useEffect(()=>{
+        PuntoEmision()
+    },[])
 
     return (
         <div className="content">
             <Card>
                 <Row>
                     <Col md="8">
-                        <Row>
-                            <Col md="5" className="">
-                                <FormGroup>
+                        <Row >
+                            <Col md="5" className="" >
+                                <FormGroup >
                                     <label>BUSQUEDA DE PRODUCTO</label>
                                     <Input
                                         placeholder="Busca por Codigo o nombre de Producto"
                                         name="producto"
+                                        id="producto"
                                         type="text"
-                                        onKeyPress={(e) => handlebuscarProducto(e)}
+                                        autocomplete="off"
+                                        onChange={(e) => handlebuscarProducto(e)}
                                     />
+                                    {
+                                         
+                                        
+                                        producto ?<Table className="" style={{position:"absolute", zIndex:2, listStyle:"none", cursor:"pointer"}} hover responsive>
+                                           <tbody className="form-control" style={{maxHeight:"300px", overflowY:"auto"}}>
+                                            {
+                                                resultado.map((iten)=>(
+                                                    <tr key={iten.id}>
+                                                    <td onClick={()=>TiendaIten(iten.codigo,iten.empresa,iten.id,iten.iva_venta,iten.precio_venta,iten.producto,iten.unidad)}
+                                                    className="py-2"
+                                                    >{iten.producto}</td>
+                                                    </tr>                                                  
+                                                ))
+                                            }
+                                           </tbody>
+                                        </Table>
+                                        : null
+                                    }
                                 </FormGroup>
                             </Col>
                             <Col md="2">
@@ -269,7 +343,7 @@ function PuntoVenta(props) {
                             </Col>
                             <Col md="1">
                                 <label>ORDEN</label>
-                                <select id="orden" className="form-control text-center mt-0">
+                                <select id="orden" className="form-control text-center mt-0" onChange={()=>handleVerPedido()}>
                                     {
                                         OrdenV.map((iten) => (
                                             <option value={iten.orden}>{iten.orden}</option>
@@ -281,8 +355,8 @@ function PuntoVenta(props) {
                                 <button className="btn btn-info mt-4"><i className="nc-icon nc-minimal-right" /></button>
                             </Col>
                         </Row>
-                        <div className="orden-web">
-                            <div className="orden-producto">
+                        <div className="orden-web" style={{zIndex:1,position:"static"}}>
+                            <div className="orden-producto" >
                                 <Table hover responsive>
                                     <thead className="bg-info p-2" style={{ fontWeight: 'bold' }}>
                                         <tr>
@@ -307,7 +381,7 @@ function PuntoVenta(props) {
                                     <button className="form-control btn btn-info">Pago por link</button>
                                 </Col>
                                 <Col md="4">
-                                    <button className="form-control btn btn-info" onClick={()=>hanbleGenerarPago()}>Generar Factura</button>
+                                <button className="form-control btn btn-info" onClick={()=>hanbleGenerarPago()}>Generar Factura</button>
                                 </Col>
                                 <Col md="4">
                                     <button className="form-control btn btn-info" onClick={()=>OrdenDespacho()}>Orden Despacho</button>
@@ -341,9 +415,9 @@ function PuntoVenta(props) {
                                 </Col>
                                 <Col md="3">
                                     <FormGroup>
-                                        <label>SERIE</label>
+                                        <label>LOCAL</label>
                                         <Input
-                                            placeholder="001"
+                                            defaultValue={pemision.establecimiento_de}
                                             name="serie"
                                             disabled
                                             type="text"
@@ -354,7 +428,7 @@ function PuntoVenta(props) {
                                     <FormGroup>
                                         <label>P. EMISION</label>
                                         <Input
-                                            placeholder="001"
+                                            defaultValue={pemision.punto_emision_de}
                                             name="local"
                                             disabled
                                             type="text"
@@ -430,8 +504,11 @@ function PuntoVenta(props) {
                     </Col>
                 </Row>
             </Card>
+            
         </div>
+
     );
+
 }
 
 export default withRouter(PuntoVenta);

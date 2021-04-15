@@ -7,6 +7,8 @@ import { useSelector } from 'react-redux'
 
 
 const ModalMP = (props) => {
+
+  
     const { Title, setTitle, setOpenModal, OpenModal, ListaProductos } = props
 
     const [categoria, setcategoria] = useState([])
@@ -27,10 +29,10 @@ const ModalMP = (props) => {
     const GrabarProducto = async (e) => {
         e.preventDefault()
         let empresa = localStorage.getItem('empresa:')
-        const rest = await axios.post('http://localhost:4000/inventario/producto_materia_prima', { selectCategoria, producto, codigo, unidad, codigoBarra, empresa })
+        const rest = await axios.post('http://34.196.59.251:4000/inventario/producto_materia_prima', { selectCategoria, producto, codigo, unidad, codigoBarra, empresa })
         if (rest.data !== "Algo Salio Mal Vuelve a intentar") {
             setOpenModal(!OpenModal)
-            ListaProductos()
+                ListaProductos()
             numeroAleatorioDecimales(999999999)
             Handle()
             swal({
@@ -49,14 +51,14 @@ const ModalMP = (props) => {
 
     const Categoria = async (data) => {
         let empresa = localStorage.getItem('empresa:')
-        const rest = await axios.get('http://localhost:4000/inventario/categoria_materia_prima/' + empresa)
+        const rest = await axios.get('http://34.196.59.251:4000/inventario/categoria_materia_prima/' + empresa)
         setcategoria(rest.data)
     }
     const UltimoCodigo = async (e) => {
         var id = e.target.value
         setselectCategoria(id);
         let empresa = localStorage.getItem('empresa:')
-        const rest = await axios.post('http://localhost:4000/inventario/codigo_categoria_materia_prima', { id, empresa })
+        const rest = await axios.post('http://34.196.59.251:4000/inventario/codigo_categoria_materia_prima', { id, empresa })
         if (rest.data[0].codigo !== null) {
             setcodigo(parseInt(rest.data[0].codigo) + 1);
         } else {
@@ -64,7 +66,7 @@ const ModalMP = (props) => {
         }
     }
     const UnidadMedida = async () => {
-        const rest = await axios.get('http://localhost:4000/inventario/unidad')
+        const rest = await axios.get('http://34.196.59.251:4000/inventario/unidad')
         setmedid(rest.data)
     }
 
@@ -75,6 +77,7 @@ const ModalMP = (props) => {
         setTitle("")
         setcodigo("")
         setOpenModal(!OpenModal)
+        setproductoE([])
     }
 
     const [productoE, setproductoE] = useState({
@@ -95,7 +98,7 @@ const ModalMP = (props) => {
     const GrabarEdiMP =async(e)=>{
         e.preventDefault();
         let empresa = localStorage.getItem('empresa:')
-        const rest = await axios.put('http://localhost:4000/inventario/ObtenerMPrima_IdEdit',{productoE, empresa})
+        const rest = await axios.put('http://34.196.59.251:4000/inventario/ObtenerMPrima_IdEdit',{productoE, empresa})
         if (rest.data === "Producto Actualizado") {
             setOpenModal(!OpenModal)
             ListaProductos()

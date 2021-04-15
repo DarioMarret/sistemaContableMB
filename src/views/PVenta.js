@@ -43,13 +43,13 @@ const PVenta = (props) => {
                 <CardFooter>
                     <Row>
                         <Col md="4" className="d-flex justify-content-center">
-                            <button className="btn btn-info group-control">Desdarga</button>
+                            <button className="btn btn-info group-control">Descarga</button>
                         </Col>
                         <Col md="4" className="d-flex justify-content-center">
                         <NavLink to="/admin/punto_venta" className="btn btn-info group-control">Punto de Venta</NavLink>
                         </Col>
                         <Col md="4" className="d-flex justify-content-center">
-                        <button className="btn btn-info group-control">Desdarga</button>
+                        <button className="btn btn-info group-control">Descarga</button>
                         </Col>
                     </Row>
                 </CardFooter>

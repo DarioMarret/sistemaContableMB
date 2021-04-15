@@ -21,11 +21,21 @@ import CosteoProductos from "views/CosteoProducto.js";
 import Asistencia from "views/Asistencia.js";
 import CompraMateria from "views/CompraMateria.js";
 import ListaMateriaPrima from "views/ListaMateriaPrima.js";
+import Kardex from "views/Kardex.js";
+import MovimientoK from "views/MovimientoK.js";
+import SaldoK from "views/SaldoK.js";
+import RegistrarEmpleado from "views/RegistrarEmpleado.js";
+import NuevoProveedor from "views/NuevoProveedor.js";
+import RecetaCosteo from "views/costeoproductoreceta.js";
+import MovimientoCaja from "views/MovimientoCaja.js";
+
 
 
 import LuieleiVenta from "views/LuieleiVentas.js";
 import luieleiGastos from "views/LuieleiGastos.js";
 import LuieleiOtros from "views/LuieleiOtros.js";
+import RegistrarSuscripcion from "views/RegistrarSuscripcion.js";
+import Login from "layouts/Login.js";
 
 var routes = [
   {
@@ -34,6 +44,18 @@ var routes = [
     icon: "nc-icon nc-bank",
     component: Dashboard,
     layout: "/admin",
+  },
+  {
+    path: "/costeoreceta",
+    name:"Composicion de producto Terminado",
+    component: RecetaCosteo,
+    layout:"/admin"
+  },
+  {
+    path: "/flujoCaja",
+    name: "",
+    component: MovimientoCaja,
+    layout:"/admin"
   },
   {
     path: "/icons",
@@ -82,6 +104,13 @@ var routes = [
     layout: "/admin",
   },
   {
+    path: "/kardex",
+    name: "Kardex",
+    icon: "nc-icon nc-bank",
+    component: Kardex,
+    layout: "/admin",
+  },
+  {
     path: "/lui-ventas",
     name: "Lui Reporte de Ventas",
     icon: "nc-icon nc-bank",
@@ -121,6 +150,18 @@ var routes = [
     layout: "/admin",
   },
   {
+    path:"/EmpledoNuevo",
+    name:"Nuevo Empleado",
+    component:RegistrarEmpleado,
+    layout: "/admin",
+  },
+  {
+    path:"/NuevoProveedor",
+    name:"Nuevo Proveedor",
+    component:NuevoProveedor,
+    layout:"/admin"
+  },
+  {
     path:"/nomina",
     name: "Nomina / Roles",
     component: Nomina,
@@ -137,6 +178,18 @@ var routes = [
     name: "Editar Proveedor",
     component: EditarProveedor,
     layout: "/admin",
+  },
+  {
+    path: "/kardexEdit/:movimientosk",
+    name: "Kardex",
+    component:MovimientoK,
+    layout: "/admin"
+  },
+  {
+    path:"/kardex_Saldo",
+    name:"Saldo inicial",
+    component:SaldoK,
+    layout:"/admin"
   },
   {
     path:"/nuevo_proveedor",
@@ -182,9 +235,18 @@ var routes = [
   },
   {
     path: "/costeo",
-    name:"",
     component: CosteoProductos,
     layout:"/admin"
+  },
+  {
+    path: "/registro_suscripcion",
+    component: RegistrarSuscripcion,
+    layout:"/page"
+  },
+  {
+    path: "/login",
+    component: Login,
+    layout:"/sing"
   },
 ];
 export default routes;

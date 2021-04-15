@@ -28,13 +28,13 @@ function Dashboard () {
   const [ventaHoy, setventaHoy] = useState([])
 
   const Dash = async () => {
-    const vent = await axios.get('http://54.156.16.123:4000/dashboar/ventas')
+    const vent = await axios.get('http://34.196.59.251:4000/dashboar/ventas')
     setventas(vent.data)
-    const gast = await axios.get('http://54.156.16.123:4000/dashboar/gastos')
+    const gast = await axios.get('http://34.196.59.251:4000/dashboar/gastos')
     setgastos(gast.data)
-    const ventaA = await axios.get('http://54.156.16.123:4000/dashboar/venta_anterios')
+    const ventaA = await axios.get('http://34.196.59.251:4000/dashboar/venta_anterios')
     setventaAnterio(ventaA.data)
-    const hoyVenta = await axios.get('http://54.156.16.123:4000/dashboar/venta_del_dia')
+    const hoyVenta = await axios.get('http://34.196.59.251:4000/dashboar/venta_del_dia')
     setventaHoy(hoyVenta.data)
 
   }

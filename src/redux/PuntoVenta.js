@@ -44,7 +44,6 @@ export default function PuntoVenta(state = dataInicial, action) {
             return { ...state, cliente: action.payload }
         case ACTUALIZAR_CANTIDAD:
             return { ...state, echo: action.payload }
-
         default:
             return state
     }
@@ -52,7 +51,7 @@ export default function PuntoVenta(state = dataInicial, action) {
 //acciones
 export const ObtenerProductosVenta = (busqueda,empresa) => async (dispatch, getState) => {
     try {
-        const rest = await axios.post('http://localhost:4000/ventaWeb/buscarproductoVenta', { busqueda, empresa})
+        const rest = await axios.post('http://34.196.59.251:4000/ventaWeb/buscarproductoVenta', { busqueda, empresa})
         if(rest.data === 'Producto no Existe'){
             swal({
                 text: "El Producto no se encuentra en Base",
@@ -71,7 +70,7 @@ export const ObtenerProductosVenta = (busqueda,empresa) => async (dispatch, getS
 }
 export const ObtenerUltimaOrden = (empresa) => async (dispatch, getState) => {
     try {
-        const rest = await axios.get('http://localhost:4000/ventaWeb/ObtenerUltimaOrden/'+empresa)
+        const rest = await axios.get('http://34.196.59.251:4000/ventaWeb/ObtenerUltimaOrden/'+empresa)
         dispatch({
             type: OBTENER_ORDEN,
             payload: rest.data
@@ -82,7 +81,7 @@ export const ObtenerUltimaOrden = (empresa) => async (dispatch, getState) => {
 }
 export const AgregarProductoOrden = (Orden) => async (dispatch, getState) => {
     try {
-        const rest = await axios.post('http://localhost:4000/ventaWeb/Agregarorden', { Orden })
+        const rest = await axios.post('http://34.196.59.251:4000/ventaWeb/Agregarorden', { Orden })
         dispatch({
             type: OBTENER_ORDEN,
             // payload: rest.data
@@ -93,7 +92,7 @@ export const AgregarProductoOrden = (Orden) => async (dispatch, getState) => {
 }
 export const VerProductoOrden = (id_orden, empresa) => async (dispatch, getState) => {
     try {
-        const rest = await axios.post('http://localhost:4000/ventaWeb/VerPedido', { id_orden, empresa })
+        const rest = await axios.post('http://34.196.59.251:4000/ventaWeb/VerPedido', { id_orden, empresa })
         dispatch({
             type: VER_PEDIDO,
             payload: rest.data
@@ -115,7 +114,7 @@ export const Reset = () => async (dispatch, getState) => {
 }
 export const EliminarPedidoOrden = (id) => async (dispatch, getState) => {
     try {
-        const rest = await axios.post('http://localhost:4000/ventaWeb/EliminarPedidoOrden', { id })
+        const rest = await axios.post('http://34.196.59.251:4000/ventaWeb/EliminarPedidoOrden', { id })
         if (rest.data === "ok") {
             dispatch({
                 type: ELIMINAR_ORDEN,
@@ -128,7 +127,7 @@ export const EliminarPedidoOrden = (id) => async (dispatch, getState) => {
 }
 export const ActualizarCantidad = (id, cantidad, precioV, empresa) => async (dispatch, getState) => {
     try {
-        const rest = await axios.post('http://localhost:4000/ventaWeb/ActualizarCantidad', { id, cantidad, precioV, empresa })
+        const rest = await axios.post('http://34.196.59.251:4000/ventaWeb/ActualizarCantidad', { id, cantidad, precioV, empresa })
         dispatch({
             type: ACTUALIZAR_CANTIDAD,
             payload: true
@@ -139,7 +138,7 @@ export const ActualizarCantidad = (id, cantidad, precioV, empresa) => async (dis
 }
 export const AgregarCliente = (ruc, empresa) => async (dispatch, getState) => {
     try {
-        const rest = await axios.post('http://localhost:4000/ventaWeb/AgregarCliente', { ruc,empresa})
+        const rest = await axios.post('http://34.196.59.251:4000/ventaWeb/AgregarCliente', { ruc,empresa})
         if (rest.data !== 'no existe') {
             dispatch({
                 type: ORDEN_CLIENTE,

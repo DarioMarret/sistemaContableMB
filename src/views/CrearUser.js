@@ -4,8 +4,8 @@ import axios from 'axios'
 import swal from 'sweetalert';
 import { Card,  Button, InputGroupText, Row, Col, Input, FormGroup, InputGroup, InputGroupAddon } from 'reactstrap'
 
-function EditarUsers(props) {
-    const { location, history } = props
+function CrearUsers(props) {
+    const { history } = props
 
 
     const [EditEmpleado, setEditEmpleado] = useState({
@@ -23,18 +23,7 @@ function EditarUsers(props) {
         cuenta: '',
         estatus: '',
     })
-    const EditarEmpleado = async () => {
-        let path = location.pathname
-        let id = path.split("/")
-        let empresa = localStorage.getItem('empresa:')
-        const res = await axios.get('http://34.196.59.251:4000/empleado/id/' + id[3] + '/' + empresa)
-        if (res.data) {
-            setEditEmpleado(res.data)
-        }
-    }
-    useEffect(() => {
-        EditarEmpleado()
-    }, [])
+
     const handleEdit=(e)=>{
         setEditEmpleado({
             ...EditEmpleado,
@@ -49,7 +38,6 @@ function EditarUsers(props) {
                 icon: "success",
                 timer: 2000,
             })
-            EditarEmpleado()
             setEditEmpleado({
                 id: '',
                 empresa: '',
@@ -94,7 +82,6 @@ function EditarUsers(props) {
                                 </InputGroupAddon>
                                 <Input
                                     name="nombre"
-                                    defaultValue={EditEmpleado.nombre}
                                     type="text"
                                     className="p-2"
                                     onChange={(e)=>handleEdit(e)}
@@ -113,7 +100,6 @@ function EditarUsers(props) {
                                 </InputGroupAddon>
                                 <Input
                                     name="apellido"
-                                    defaultValue={EditEmpleado.apellido}
                                     type="text"
                                     className="p-2"
                                     onChange={(e)=>handleEdit(e)}
@@ -131,7 +117,6 @@ function EditarUsers(props) {
                                 </InputGroupAddon>
                                 <Input
                                     name="telefono"
-                                    defaultValue={EditEmpleado.telefono}
                                     type="text"
                                     className="p-2"
                                     onChange={(e)=>handleEdit(e)}
@@ -150,7 +135,6 @@ function EditarUsers(props) {
                                 </InputGroupAddon>
                                 <Input
                                     name="direccion"
-                                    defaultValue={EditEmpleado.direccion}
                                     type="text"
                                     className="p-2"
                                     onChange={(e)=>handleEdit(e)}
@@ -167,7 +151,6 @@ function EditarUsers(props) {
                                 </InputGroupAddon>
                                 <Input
                                     name="sueldo"
-                                    defaultValue={EditEmpleado.sueldo}
                                     type="text"
                                     className="p-2"
                                     onChange={(e)=>handleEdit(e)}
@@ -186,7 +169,6 @@ function EditarUsers(props) {
                                 </InputGroupAddon>
                                 <Input
                                     name="tipo"
-                                    defaultValue={EditEmpleado.tipo}
                                     type="text"
                                     className="p-2"
                                     onChange={(e)=>handleEdit(e)}
@@ -205,7 +187,6 @@ function EditarUsers(props) {
                                 </InputGroupAddon>
                                 <Input
                                     name="tipo_cuenta"
-                                    defaultValue={EditEmpleado.tipo_cuenta}
                                     type="text"
                                     className="p-2"
                                     onChange={(e)=>handleEdit(e)}
@@ -224,7 +205,6 @@ function EditarUsers(props) {
                                 </InputGroupAddon>
                                 <Input
                                     name="cuenta"
-                                    defaultValue={EditEmpleado.cuenta}
                                     type="text"
                                     className="p-2"
                                     onChange={(e)=>handleEdit(e)}
@@ -243,7 +223,6 @@ function EditarUsers(props) {
                                 </InputGroupAddon>
                                 <Input
                                     name="estatus"
-                                    defaultValue={EditEmpleado.estatus}
                                     type="text"
                                     className="p-2"
                                     onChange={(e)=>handleEdit(e)}
@@ -267,4 +246,4 @@ function EditarUsers(props) {
     );
 }
 
-export default withRouter(EditarUsers);
+export default withRouter(CrearUsers);

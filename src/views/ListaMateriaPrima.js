@@ -89,7 +89,7 @@ const ListaMateriaPrima = (props) => {
         }).then((result) => {
             if (result) {
                 let empresa = localStorage.getItem('empresa:')
-                const rest = axios.delete('http://localhost:4000/inventario/delete_materia_prima/'+id+"/"+empresa)
+                const rest = axios.delete('http://34.196.59.251:4000/inventario/delete_materia_prima/'+id+"/"+empresa)
                 if (rest.data === 'ok') {
                     ListaProductos()
                 } else {
@@ -112,7 +112,7 @@ const ListaMateriaPrima = (props) => {
     const [productos, setproductos] = useState([])
     const ListaProductos = async () => {
         let empresa = localStorage.getItem('empresa:')
-        const rest = await axios.get('http://localhost:4000/inventario/materia_prima/'+empresa)
+        const rest = await axios.get('http://34.196.59.251:4000/inventario/materia_prima/'+empresa)
         setproductos(rest.data)
     }
     const [OpenModal, setOpenModal] = useState(false)
@@ -127,6 +127,7 @@ const ListaMateriaPrima = (props) => {
         dispatch(ObtenerMPrima_IdEdit(id, empresa))
         setTitle("Editar")
         setOpenModal(!OpenModal)
+        ListaProductos()
     }
 
     useEffect(() => {

@@ -27,7 +27,7 @@ export default function ModalCliente(state = dataInicial, action) {
 //acciones
 export const EditarCliente = (id, empresa, EditClient) => async (dispatch, getState) => {
     try {
-        const rest = await axios.put('http://localhost:4000/clientes/EditarCliente', { id, empresa, EditClient })
+        const rest = await axios.put('http:/34.196.59.251/:4000/clientes/EditarCliente', { id, empresa, EditClient })
         dispatch({
             type: OBTENER_CLIENTE_ID,
             payload: rest.data

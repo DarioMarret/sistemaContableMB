@@ -125,13 +125,13 @@ const Compras = (props) => {
         var fecha_Hasta = año + "-" + Mess + "-01";
         console.log(fecha_Actual);
         console.log(fecha_Hasta);
-        const gasto = await axios.get('http://54.156.16.123:4000/reporte/otros/' + fecha_Actual + "/" + fecha_Hasta)
+        const gasto = await axios.get('http://34.196.59.251:4000/reporte/otros/' + fecha_Actual + "/" + fecha_Hasta)
         console.log(gasto.data);
         setgastos(gasto.data)
     }
 
     const Generar = async () => {
-        const gasto = await axios.post('http://54.156.16.123:4000/reporte/otros', { desde, hasta })
+        const gasto = await axios.post('http://34.196.59.251:4000/reporte/otros', { desde, hasta })
         console.log(gasto.data);
         setgastos(gasto.data)
     }
@@ -212,6 +212,7 @@ const Compras = (props) => {
                         bodyStyle: {
                             padding: '0'
                         },
+                        pageSize:10,
                     }}
                 />
             </div>

@@ -12,10 +12,14 @@ function ModalCompraMP(props) {
     const [precio, setprecio] = useState("")
     const [nombreP, setnombreP] = useState("")
     const [id, setid] = useState("")
+    const [Iva, setIva] = useState(false)
 
+    const status=(e)=>{
+        setIva(!Iva)
+    }
     const ListaProductos = async () => {
         let empresa = localStorage.getItem('empresa:')
-        const rest = await axios.get('http://localhost:4000/inventario/materia_prima/'+empresa)
+        const rest = await axios.get('http://34.196.59.251:4000/inventario/materia_prima/'+empresa)
         setproductos(rest.data)
     }
     const SeleccionMP = async (e) => {
@@ -36,13 +40,20 @@ function ModalCompraMP(props) {
         movimiento_kx:'Compra',
         cantidad_kx:cantidad,
         precio_kx:precio,
+        iva: Iva === true ? "I" : "",
         empresa:localStorage.getItem('empresa:'),
         responsable:localStorage.getItem('usuario:')
         }
         Local =[...Local,info];
         localStorage.setItem('Local:',JSON.stringify(Local));
+        CloseModal()
+    }
+    const CloseModal=()=>{
+        let medida = document.getElementById("medida")
+        medida.value= ""
         setOpenModalCompraMP(false)
     }
+    
     function VerLocal() {
         let iten = JSON.parse(localStorage.getItem('Local:'));
             if(iten !== null){
@@ -109,8 +120,18 @@ function ModalCompraMP(props) {
                                                     <label>MEDIDA</label>
                                                     <Input
                                                     disabled
+                                                    id="medida"
                                                     defaultValue={medida}  
                                                     />
+                                                </FormGroup>
+                                            </Col>
+                                            <Col className="pr-1" md="3">
+                                                <FormGroup>
+                                                <label className="form-check-label" htmlFor="flexCheckDefault">
+                                                    Producto con Iva
+                                                </label>   
+                                                <br/>                                            
+                                                <Input className="form-check-input" type="checkbox" checked={Iva} id="flexCheckDefault" onClick={(e) => status(e)} />
                                                 </FormGroup>
                                             </Col>
                                         </Row>
@@ -121,7 +142,7 @@ function ModalCompraMP(props) {
                                                         className="btn-round group-control"
                                                         color="danger"
                                                         type="submit"
-                                                        onClick={()=>setOpenModalCompraMP(!OpenModalCompraMP)}
+                                                        onClick={()=>CloseModal()}
                                                     >
                                                         Cerrar
                                                     </Button>

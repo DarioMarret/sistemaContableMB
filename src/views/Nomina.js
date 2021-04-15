@@ -11,7 +11,7 @@ function Nomina(props) {
     const [nomina, setnomina] = useState([])
     const BuscarNomina=async()=>{
         let empresa = localStorage.getItem('empresa:')
-        const rest = await axios.post('http://localhost:4000/nomina/rol',{desde, hasta, empresa})
+        const rest = await axios.post('http://34.196.59.251:4000/nomina/rol',{desde, hasta, empresa})
         if(rest.data === 'No'){
 
         }else{

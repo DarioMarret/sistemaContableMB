@@ -1,121 +1,173 @@
-import React, { useState, useEffect } from "react";
+import React, { forwardRef, useState, useEffect } from 'react';
+import { withRouter } from 'react-router-dom'
+import { Card, Col } from "reactstrap";
+import MaterialTable from 'material-table'
 
-// reactstrap components
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Table,
-  Row,
-  Col,
-  InputGroupAddon,
-  InputGroup,
-  InputGroupText,
-  Input,
-} from "reactstrap";
-import axios from 'axios'
-import { withRouter } from "react-router-dom";
-import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+import Edit from '@material-ui/icons/Edit'
+import DeleteOutline from '@material-ui/icons/DeleteOutline'
+import Search from '@material-ui/icons/Search'
+import AddBox from '@material-ui/icons/AddBox';
+import ArrowDownward from '@material-ui/icons/ArrowDownward';
+import Check from '@material-ui/icons/Check';
+import ChevronLeft from '@material-ui/icons/ChevronLeft';
+import ChevronRight from '@material-ui/icons/ChevronRight';
+import Clear from '@material-ui/icons/Clear';
+import FilterList from '@material-ui/icons/FilterList';
+import FirstPage from '@material-ui/icons/FirstPage';
+import LastPage from '@material-ui/icons/LastPage';
+import Remove from '@material-ui/icons/Remove';
+import SaveAlt from '@material-ui/icons/SaveAlt';
+import ViewColumn from '@material-ui/icons/ViewColumn';
+import { Delete } from '@material-ui/icons'
+import swal from 'sweetalert';
+import { useDispatch } from 'react-redux'
+import {EditarCliente} from '../redux/ModalCliente'
+
+import axios from 'axios';
 
 
-function Factura() {
+function Factura(props) {
 
-  const [desde, setdesde] = useState('')
-  const [hasta, sethasta] = useState('')
-  const [venta, setventa] = useState([])
-  var rest = '';
-  var base = '';
 
-  const Ventas_R = async () => {
-    const ventas = await axios.post('http://54.156.16.123:4000/reporte/ventas', { desde, hasta })
-    setventa(ventas.data)
+    const tableIcons = {
+        Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
+        Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
+        Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+        Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
+        DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+        Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
+        Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
+        Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
+        FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
+        LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
+        NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+        PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
+        ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+        Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
+        SortArrow: forwardRef((props, ref) => <ArrowDownward {...props} ref={ref} />),
+        ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
+        ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
+    }
+    const columnas = [
+        {
+            title: 'T. Documento', 
+            field: 'documento_fc',
+        },
+        {
+            title: 'Cedula/RUC',
+            field: 'ruc_fc',
+        },
+        {
+            title: 'Emision',
+            field: 'punto_emision_fc',
+        },
+        {
+            title: 'N. Factura',
+            field: 'numero_factura',
+        },
+        {
+            title: 'Total',
+            field: 'Total',
+            render: rowData => rowData.Total.toFixed(2)
+        },
+        {
+          title: 'Fecha Emision',
+          field: 'fecha_fc',
+          type: 'date'
+        },
+        {
+          title: 'E.',
+          field: 'estado',
+          render: rowData => rowData.estado === 'A'? "Ok":"Anulado"
+      },
+    ]
+
+    const DeleteProducto = async (id, estado) => {
+        swal({
+          text: 'Seguro de Anular Esta Factura',
+          icon: "warning",
+          showDenyButton: true,
+          showCancelButton: true,
+        }).then(async(result) => {
+        if (result) {
+            let empresa = localStorage.getItem('empresa:')
+            const rest = await axios.put('http://34.196.59.251:4000/pagos/anular',{id,empresa,estado})
+            console.log(rest)
+            if (rest.data != 'Error') {
+              ListaClientes()
+            }
+        }
+      })
+    }
+
+    const dispatch = useDispatch()
+    
+    const [cliente, setcliente] = useState([])
+    const ListaClientes = async () => {
+        let empresa = localStorage.getItem('empresa:')
+        const {data} = await axios.post('http://34.196.59.251:4000/pagos/lista',{empresa})
+        setcliente(data)
+    } 
+
+    const handleDescarga=async(id)=>{
+        let empresa = localStorage.getItem('empresa:')
+        let factura = id;
+        const {data} = await axios.post("http://34.196.59.251:4000/pagos/descargaPdf",{empresa,factura})
+        if (data.length > 0){
+          console.log(data)
+          window.open('http://34.196.59.251/impresora/prueba.php?datos='+JSON.stringify(data)+'&factura='+id, '_blank');
+        }
+      }
+
+    const handleEditar=(id)=>{
+      let empresa = localStorage.getItem('empresa:')
+     
   }
+    useEffect(() => {
+        ListaClientes()
+    }, [])
 
-  return (
-    <>
-      <div className="content">
-        <Row>
-          <Col md="12">
-            <Card className="card-user">
-              <CardHeader>
-                <div className="bg-transparent" align="center">
-                  <div className="row justify-content-start">
-                    <div className="col-md-3">
-                      <InputGroup>
-                        <InputGroupAddon addonType="prepend">
-                          <InputGroupText>Desde:</InputGroupText>
-                        </InputGroupAddon>
-                        <Input type="date" className="form-control" id="desde" onChange={(e) => setdesde(e.target.value)} />
-                      </InputGroup>
-                    </div>
-                    <div className="col-md-3">
-                      <InputGroup>
-                        <InputGroupAddon addonType="prepend">
-                          <InputGroupText>Hasta:</InputGroupText>
-                        </InputGroupAddon>
-                        <Input type="date" className="form-control" id="hasta" onChange={(e) => sethasta(e.target.value)} />
-                      </InputGroup>
-                    </div>
-                    <div className="col-md-1 my-1 " style={{ height: "10%", width: "5%" }}>
-                      <InputGroup>
-                        <i className="nc-icon nc-zoom-split" role="button" style={{ fontSize: "30px" }}
-                          onClick={() => Ventas_R()}
-                        ></i>
-                      </InputGroup>
-                    </div>
-                    <div className="col-md-5 mb-0" style={{ padding: "0px" }}>
-                      <InputGroup className="mb-0">
-                        <ReactHTMLTableToExcel id="test-table-xls-button" className="btn btn-success"
-                          table="ventasId"
-                          filename="Ventas"
-                          sheet="Reporte_Vxls"
-                          buttonText="XLS" />
-                        <input type="button" value="PDF" className="btn btn-danger" />
-                        <input type="button" value="PRINT" className="btn btn-info" />
-                      </InputGroup>
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardBody>
-                <Table responsive id="ventasId">
-                  <thead className="text-primary">
-                    <tr>
-                      <th>Fecha</th>
-                      <th>Factura/Ticke</th>
-                      <th>CI/Ruc</th>
-                      <th>Razon Social</th>
-                      <th>Estado</th>
-                      <th>Metodo de Pago</th>
-                      <th>Base Imponible</th>
-                      <th>Impuesto</th>
-                      <th>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {venta.map((iten) => (
-                      <tr>
-                        <td>{iten.fecha ? rest = iten.fecha.split("T", 1) : ''}</td>
-                        <td>TK-{iten.n_factura}</td>
-                        <td>{iten.cedula}</td>
-                        <td>{iten.nombre}</td>
-                        <td>{iten.anuladas}</td>
-                        <td>Efectivo</td>
-                        <td>${iten.subtotal}</td>
-                        <td>${iten.impuesto.toFixed(2)}</td>
-                        <td>${iten.total.toFixed(2)}</td>
-                      </tr>
-                    ))
-                    }
-                  </tbody>
-                </Table>
-              </CardBody>
+    return (
+        <div className="content">
+            <Card>
+                <MaterialTable columns={columnas}
+                    title="Facturas Emitidas"
+                    data={cliente}
+                    icons={tableIcons}
+                    actions={[
+                        {
+                            icon: () => <SaveAlt />,
+                            tooltip: "Descargar",
+                            onClick: (event, rowData) => handleDescarga(rowData.numero_factura)
+                        },
+                        {
+                            icon: () => <AddBox />,
+                            tooltip: "Re-Imprimir",
+                            onClick: (event, rowData) => handleEditar(rowData.numero_factura)
+                        },
+                        {
+                            icon: () => <Remove />,
+                            tooltip: "Anular",
+                            onClick: (event, rowData) => DeleteProducto(rowData.numero_factura, rowData.estado)
+                        }
+                    ]}
+                    options={{
+                        headerStyle: {
+                            backgroundColor: '#51cbce',
+                            color: '#313131',
+                            fontSize: '16px',
+                            fontWeight: 'bold',
+                        },
+                        bodyStyle: {
+                            padding: '0'
+                        },
+                        pageSize:20,
+                        exportButton: true,
+                    }}
+                />
             </Card>
-          </Col>
-        </Row>
-      </div>
-    </>
-  );
+        </div>
+    );
 }
 
 export default withRouter(Factura);

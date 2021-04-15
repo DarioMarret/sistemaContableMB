@@ -73,14 +73,14 @@ function Users(props) {
     const [empleado, setempleado] = useState([])
     const ListaEmpleado=async()=>{
         let empresa = localStorage.getItem('empresa:')
-        const rest = await axios.get('http://localhost:4000/empleado/lista/'+empresa)
+        const rest = await axios.get('http://34.196.59.251:4000/empleado/lista/'+empresa)
         setempleado(rest.data)
     }
     useEffect(() => {
         ListaEmpleado()
     }, [])
     const EliminarEmpleado=async(id)=>{
-        await axios.delete('http://localhost:4000/empleado/delete/'+id)
+        await axios.delete('http://34.196.59.251:4000/empleado/delete/'+id)
         ListaEmpleado()
     }
     const DetallarEmpleado=(id)=>{
@@ -90,7 +90,7 @@ function Users(props) {
         <div className="content">
             <Card className="card-user">
                 <Col className="justify-content-start p-2">
-                    <button className="btn btn-primary">Nuevo Empleado</button>
+                    <button className="btn btn-primary" onClick={()=>history.push('/admin/EmpledoNuevo')}>Nuevo Empleado</button>
                 </Col>
             </Card>
             <Card className="card-user">
@@ -111,6 +111,11 @@ function Users(props) {
                             onClick: (event, rowData) => EliminarEmpleado(rowData.id)
                         }
                     ]}
+                    options={
+                        {
+                            pageSize:10,
+                        }
+                    }
                 />
             </Card>
         </div>

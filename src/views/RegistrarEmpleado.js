@@ -4,13 +4,12 @@ import axios from 'axios'
 import swal from 'sweetalert';
 import { Card,  Button, InputGroupText, Row, Col, Input, FormGroup, InputGroup, InputGroupAddon } from 'reactstrap'
 
-function EditarUsers(props) {
+function RegistrarEmpleado(props) {
     const { location, history } = props
 
 
     const [EditEmpleado, setEditEmpleado] = useState({
-        id: '',
-        empresa: '',
+        empresa: localStorage.getItem('empresa:'),
         cargo: '',
         nombre: '',
         apellido: '',
@@ -23,18 +22,7 @@ function EditarUsers(props) {
         cuenta: '',
         estatus: '',
     })
-    const EditarEmpleado = async () => {
-        let path = location.pathname
-        let id = path.split("/")
-        let empresa = localStorage.getItem('empresa:')
-        const res = await axios.get('http://34.196.59.251:4000/empleado/id/' + id[3] + '/' + empresa)
-        if (res.data) {
-            setEditEmpleado(res.data)
-        }
-    }
-    useEffect(() => {
-        EditarEmpleado()
-    }, [])
+
     const handleEdit=(e)=>{
         setEditEmpleado({
             ...EditEmpleado,
@@ -42,17 +30,15 @@ function EditarUsers(props) {
         })
     }
     const GrabarEmpleadoEdit=async()=>{
-        const rest = await axios.post('http://34.196.59.251:4000/empleado/GrabarEmpleadoEdit',{EditEmpleado})
+
+        const rest = await axios.post('http://34.196.59.251:4000/empleado/GrabarNuevoEmpleado',{EditEmpleado})
         if(rest.data === 'ok'){
             swal({
                 text: 'Empleado Editado correctamente',
                 icon: "success",
                 timer: 2000,
             })
-            EditarEmpleado()
             setEditEmpleado({
-                id: '',
-                empresa: '',
                 cargo: '',
                 nombre: '',
                 apellido: '',
@@ -251,6 +237,40 @@ function EditarUsers(props) {
                             </InputGroup>
                         </FormGroup>
                     </Col>
+                    <Col md="3">
+                        <FormGroup>
+                            <label>Cedula</label>
+                            <InputGroup>
+                                <InputGroupAddon addonType="prepend">
+                                    <InputGroupText><i className="nc-icon nc-send mx-3"></i></InputGroupText>
+                                </InputGroupAddon>
+                                <Input
+                                    name="cedula"
+                                    defaultValue={EditEmpleado.cedula}
+                                    type="text"
+                                    className="p-2"
+                                    onChange={(e)=>handleEdit(e)}
+                                />
+                            </InputGroup>
+                        </FormGroup>
+                    </Col>
+                    <Col md="3">
+                        <FormGroup>
+                            <label>Cargo</label>
+                            <InputGroup>
+                                <InputGroupAddon addonType="prepend">
+                                    <InputGroupText><i className="nc-icon nc-send mx-3"></i></InputGroupText>
+                                </InputGroupAddon>
+                                <Input
+                                    name="cargo"
+                                    defaultValue={EditEmpleado.cargo}
+                                    type="text"
+                                    className="p-2"
+                                    onChange={(e)=>handleEdit(e)}
+                                />
+                            </InputGroup>
+                        </FormGroup>
+                    </Col>
                 </Row>
                 <Col className="d-flex justify-content-end">
                     <Button
@@ -267,4 +287,4 @@ function EditarUsers(props) {
     );
 }
 
-export default withRouter(EditarUsers);
+export default withRouter(RegistrarEmpleado);

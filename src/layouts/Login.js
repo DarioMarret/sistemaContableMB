@@ -15,7 +15,7 @@ function Login(props) {
   const [password, setpassword] = useState("")
 
   const Validate =async () => {
-    const rest = await axios.post('http://localhost:4000/login/validar',{usuario,password})
+    const rest = await axios.post('http://34.196.59.251:4000/login/validar',{usuario,password})
     console.log(rest.data);
     if(rest.data === "No exite el Usuario"){
         swal({
@@ -37,10 +37,7 @@ return (
         <Col />
         <Col lg="4">
           <Jumbotron>
-            <h1 className="text-center text-white">
-              <b>Sistema Contable BM</b>
-            </h1>
-            {/* <hr style={{background:'white'}}/> */}
+          <div style={{height:'150px'}}/>
             <Card className='background-image'>
               <CardBody >
                 <Row className="justify-content-center" >

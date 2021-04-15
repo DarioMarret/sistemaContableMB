@@ -1,6 +1,8 @@
 import React, { forwardRef, useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom'
 import { Card, Col } from "reactstrap";
+import axios from 'axios';
+
 import MaterialTable from 'material-table'
 
 import Edit from '@material-ui/icons/Edit'
@@ -18,15 +20,10 @@ import LastPage from '@material-ui/icons/LastPage';
 import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import ViewColumn from '@material-ui/icons/ViewColumn';
-import { Delete } from '@material-ui/icons'
-import swal from 'sweetalert';
-import { useDispatch } from 'react-redux'
-import {EditarCliente} from '../redux/ModalCliente'
 
-import axios from 'axios';
-import ModalC from '../components/ModalG/ModalC';
+function SaldoK(props) {
+    const { history } = props;
 
-function Cliente(props) {
     const tableIcons = {
         Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
         Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
@@ -46,104 +43,58 @@ function Cliente(props) {
         ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
         ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
     }
+
     const columnas = [
         {
-            title: 'Nombre', 
-            field: 'nombre',
+            title: 'Fecha',
+            field: 'fecha_kxs',
+            type: 'date',
         },
         {
-            title: 'Cedula/RUC',
-            field: 'cedula',
+            title: 'Producto',
+            render: rowData => rowData.producto_mp
         },
         {
-            title: 'Correo',
-            field: 'email',
-        },
-        {
-            title: 'Contacto',
-            field: 'telefono',
-        },
-        {
-            title: 'Direccion',
-            field: 'direccion',
+            title: 'Saldo',
+            field: 'saldo_kxs',
+            type:'numeric',
         },
     ]
 
-
-    const DeleteProducto = async (id) => {
-        swal({
-            text: 'Seguro de Eliminar el Cliente',
-            icon: "warning",
-            showDenyButton: true,
-            showCancelButton: true,
-        }).then((result) => {
-            if (result) {
-                const rest = axios.delete('http://34.196.59.251:4000/clientes/delete/'+id)
-                if (rest.data === 'Producto No Pudo ser Eliminado') {
-                    swal({text:rest.data})
-                } else {
-                    swal({
-                        text: 'El producto Fue Eliminado',
-                        icon: "success",
-                        timer: 3000,
-                    })
-                    ListaClientes()
-                }
-            }
-
-        })
+    const Redurect = () => {
+        history.push("/admin/kardex")
     }
 
-    const dispatch = useDispatch()
-    
-    const [cliente, setcliente] = useState([])
-    const ListaClientes = async () => {
+    const [Saldo, setSaldo] = useState([])
+    const ListaKardex = async () => {
         let empresa = localStorage.getItem('empresa:')
-        const rest = await axios.post('http://34.196.59.251:4000/clientes/lista',{empresa})
-        setcliente(rest.data)
+        const { data } = await axios.post('http://34.196.59.251:4000/kardex/SaldoInicial', { empresa })
+        setSaldo(data)
     }
-
-    const [OpenModal, setOpenModal] = useState(false)
-    const [Title, setTitle] = useState("")
-    const handleNuevoP=()=>{
-        setTitle("NuevoProducto")
-        setOpenModal(!OpenModal)
-    }
-
-    const handleEditar=(id)=>{
-        let empresa = localStorage.getItem('empresa:')
-        dispatch(EditarCliente(id,empresa))
-        setTitle("Editar")
-        setOpenModal(!OpenModal)
+    const ActualizarSaldo=async(saldo,id)=>{
+        let empresa = localStorage.getItem('empresa:')  
+        const { data } = await axios.put('http://34.196.59.251:4000/kardex/SaldoInicial', { empresa, id, saldo })
+        if(data){
+            ListaKardex()
+        }
     }
     useEffect(() => {
-        ListaClientes()
+        ListaKardex()
     }, [])
+
 
     return (
         <div className="content">
             <Card className="">
                 <Col className="justify-content-start p-2">
-                    <button className="btn btn-primary" onClick={() =>handleNuevoP() }>Nuevo Cliente</button>
+                    <button className="btn btn-primary" onClick={() => Redurect()}>Regresar</button>
                 </Col>
             </Card>
             <Card>
                 <MaterialTable columns={columnas}
-                    title="Lista de Clientes"
-                    data={cliente}
+                    title="Kardex"
+                    data={Saldo}
                     icons={tableIcons}
-                    actions={[
-                        {
-                            icon: () => <Edit />,
-                            tooltip: "Editar",
-                            onClick: (event, rowData) => handleEditar(rowData.id)
-                        },
-                        {
-                            icon: () => <Delete />,
-                            tooltip: "Eliminar",
-                            onClick: (event, rowData) => DeleteProducto(rowData.id)
-                        }
-                    ]}
                     options={{
                         headerStyle: {
                             backgroundColor: '#51cbce',
@@ -154,18 +105,29 @@ function Cliente(props) {
                         bodyStyle: {
                             padding: '0'
                         },
-                        pageSize:20,
+                        pageSize: 20,
+                    }}
+                    editable={{
+                        // onRowAdd: newData =>
+                        //     new Promise((resolve, reject) => {
+                        //         setTimeout(() => {
+                        //             setData([...data, newData]);
+                        //             resolve();
+                        //         }, 1000)
+                        //     }),
+                        onRowUpdate: (newData, oldData) =>
+                            new Promise((resolve, reject) => {
+                                    console.log(newData)
+                                setTimeout(() => {
+                                    ActualizarSaldo(newData.saldo_kxs,newData.id)
+                                    resolve();
+                                }, 1000)
+                            }),
                     }}
                 />
             </Card>
-            <ModalC
-                OpenModal={OpenModal}
-                setOpenModal={setOpenModal}
-                Title={Title}
-                ListaClientes={ListaClientes}
-            />
         </div>
     );
 }
 
-export default withRouter(Cliente);
+export default SaldoK;

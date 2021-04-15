@@ -47,7 +47,7 @@ function ModalC(props) {
     }
     const GrabarCliente=async()=>{
         let empresa = localStorage.getItem('empresa:')
-        const rest = await axios.post('http://localhost:4000/clientes/GrabarCliente',{empresa, Cliente})
+        const rest = await axios.post('http://34.196.59.251:4000/clientes/GrabarCliente',{empresa, Cliente})
         if(rest.data === 'ok'){
             swal({
                 text: 'Cliente registrado con Exito',
@@ -81,7 +81,7 @@ function ModalC(props) {
         }
     }
     const GrabarEdit=async()=>{
-        const rest = await axios.put('http://localhost:4000/clientes/Editar',{EditClient})
+        const rest = await axios.put('http://34.196.59.251:4000/clientes/Editar',{EditClient})
         if(rest.data === 'ok'){
             ListaClientes()
             setOpenModal(!OpenModal)

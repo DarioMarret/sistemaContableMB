@@ -56,7 +56,9 @@ const Productos = (props) => {
     }
     const columnas = [
         {
-            title: 'Producto', field: 'producto', type: 'text', validate: rowData => rowData.producto !== '' ? 'Name cannot be empty' : '',
+            title: 'Producto', 
+            field: 'producto', 
+            type: 'text', validate: rowData => rowData.producto !== '' ? 'Name cannot be empty' : '',
         },
         {
             title: 'Codigo',
@@ -76,18 +78,24 @@ const Productos = (props) => {
         {
             title: 'Precio S.Impueto',
             field: 'precio_compra',
+            render: rowData => rowData.precio_compra.toFixed(2)
         },
         {
             title: 'Precio C.Impueto',
             field: 'precio_venta',
+            render: rowData => rowData.precio_venta.toFixed(2)
+
         },
         {
             title: 'Iva en venta',
             field: 'iva_venta',
+            render: rowData => rowData.iva_venta.toFixed(2)
+
         },
         {
             title: 'Servicio en Venta',
             field: 's_venta',
+            render: rowData => rowData.s_venta.toFixed(2)
         },
     ]
 
@@ -100,7 +108,7 @@ const Productos = (props) => {
             showCancelButton: true,
         }).then((result) => {
             if (result) {
-                const rest = axios.delete('http://localhost:4000/inventario/delete/'+id)
+                const rest = axios.delete('http://34.196.59.251:4000/inventario/delete/'+id)
                 if (rest.data === 'Producto No Pudo ser Eliminado') {
                     swal({text:rest.data})
                 } else {
@@ -121,7 +129,7 @@ const Productos = (props) => {
 
     const [productos, setproductos] = useState([])
     const ListaProductos = async () => {
-        const rest = await axios.get('http://54.156.16.123:4000/inventario/productos')
+        const rest = await axios.get('http://34.196.59.251:4000/inventario/productos')
         setproductos(rest.data)
     }
     const [OpenModal, setOpenModal] = useState(false)
@@ -130,6 +138,7 @@ const Productos = (props) => {
         setTitle("NuevoProducto")
         setOpenModal(!OpenModal)
     }
+
     useEffect(() => {
         ListaProductos()
     }, [])
@@ -140,6 +149,7 @@ const Productos = (props) => {
                 <Col className="justify-content-start p-2">
                     <button className="btn btn-primary" onClick={() =>handleNuevoP() }>Nuevo productos</button>
                     <button className="btn btn-primary" onClick={() =>history.push('/admin/costeo') }>Costeo por producto</button>
+                    <button className="btn btn-primary" onClick={() =>history.push("/admin/costeoreceta")}>Productos Costeados</button>
                     <ExcelFile element={<button className="btn btn-primary">Exportar productos</button>} filename="Lista de Productos">
                     <ExcelSheet data={productos} name="Stock">
                         <ExcelColumn label="Codigo" value="codigo"/>
@@ -181,6 +191,7 @@ const Productos = (props) => {
                         bodyStyle: {
                             padding: '0'
                         },
+                        pageSize:10
                     }}
                 />
             </Card>

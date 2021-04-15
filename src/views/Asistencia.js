@@ -9,13 +9,14 @@ function Asistencia(props) {
     const [empleado, setempleado] = useState([])
     const ListaAsistencia=async()=>{
         let empresa = localStorage.getItem('empresa:')
-        const rest = await axios.post('http://localhost:4000/nomina/asistencia',{empresa})
+        const rest = await axios.post('http://34.196.59.251:4000/nomina/asistencia',{empresa})
+        console.log(rest)
         setempleado(rest.data)
 
     }
     const AsistenciaOk=async(cedula, d_laborados)=>{
         let empresa = localStorage.getItem('empresa:')
-        const rest = await axios.post('http://localhost:4000/nomina/asistenciaOk',{empresa,cedula,d_laborados})
+        const rest = await axios.post('http://34.196.59.251:4000/nomina/asistenciaOk',{empresa,cedula,d_laborados})
         if(rest.data === 'ok'){
             ListaAsistencia()
         }
@@ -34,7 +35,7 @@ function Asistencia(props) {
     }
     const Observacion=async(cedula, text)=>{
         let empresa = localStorage.getItem('empresa:')
-        const rest = await axios.post('http://localhost:4000/nomina/observacion',{empresa,cedula,text})
+        const rest = await axios.post('http://34.196.59.251:4000/nomina/observacion',{empresa,cedula,text})
         if(rest.data === 'ok'){
             ListaAsistencia()
         }

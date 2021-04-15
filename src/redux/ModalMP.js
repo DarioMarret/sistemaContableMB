@@ -23,7 +23,7 @@ export default function ModalMPrima(state = dataInicial, action) {
 //acciones
 export const ObtenerMPrima_IdEdit = (id, empresa) => async (dispatch, getState) => {
     try {
-        const rest = await axios.put('http://localhost:4000/inventario/ObtenerMPrima_IdEdit', { id, empresa })
+        const rest = await axios.put('http://34.196.59.251:4000/inventario/ObtenerMPrima_IdEdit', { id, empresa })
         dispatch({
             type: OBTENER_ID_MP,
             payload: rest.data

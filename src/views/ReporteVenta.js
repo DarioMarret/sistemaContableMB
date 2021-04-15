@@ -28,14 +28,12 @@ function Ventas() {
   var base = '';
 
   const Ventas_R = async () => {
-    const ventas = await axios.post('http://54.156.16.123:4000/reporte/ventas', { desde, hasta })
+    const ventas = await axios.post('http://34.196.59.251:4000/reporte/ventas', { desde, hasta })
     setventa(ventas.data)
   }
   return (
     <>
       <div className="content">
-        <Row>
-          <Col md="12">
             <Card className="card-user">
               <CardHeader>
                 <CardTitle tag="h4">Tabla Reporte de Ventas</CardTitle>
@@ -81,9 +79,11 @@ function Ventas() {
                   </div>
                 </div>
               </CardHeader>
-              <CardBody>
-                <Table responsive id="ventasId">
-                  <thead className="text-primary">
+            </Card>
+            <Card>
+                            
+            <Table responsive id="ventasId">
+                  <thead className="bg-info">
                     <tr>
                       <th>Fecha</th>
                       <th>Factura/Ticke</th>
@@ -113,10 +113,8 @@ function Ventas() {
                     }
                   </tbody>
                 </Table>
-              </CardBody>
+              
             </Card>
-          </Col>
-        </Row>
       </div>
     </>
   );

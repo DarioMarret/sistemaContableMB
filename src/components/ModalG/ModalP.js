@@ -24,7 +24,7 @@ const ModalP = (props) => {
 
     const GrabarProducto = async (e) => {
         e.preventDefault()
-        const rest = await axios.post('http://localhost:4000/inventario/nuevo', { selectCategoria, producto, codigo, medida, unidad, sinIva, sventa, iventa, pciva })
+        const rest = await axios.post('http://34.196.59.251:4000/inventario/nuevo', { selectCategoria, producto, codigo, medida, unidad, sinIva, sventa, iventa, pciva })
         if (rest.data !== "Algo Salio Mal Vuelve a intentar" || rest.data !== "Algo Salio Mal Vuelve a intentar") {
             setOpenModal(!OpenModal)
             ListaProductos()
@@ -43,18 +43,18 @@ const ModalP = (props) => {
     }
 
     const Categoria = async (data) => {
-        const rest = await axios.get('http://54.156.16.123:4000/inventario/categoria')
+        const rest = await axios.get('http://34.196.59.251:4000/inventario/categoria')
         setcategoria(rest.data)
     }
     const UltimoCodigo = async (e) => {
         var id = e.target.value
         setselectCategoria(id);
-        const rest = await axios.post('http://localhost:4000/inventario/codigo', { id })
+        const rest = await axios.post('http://34.196.59.251:4000/inventario/codigo', { id })
         setcodigo(parseInt(rest.data[0].codigo) + 1);
     }
     const [medid, setmedid] = useState([])
     const UnidadMedida = async () => {
-        const rest = await axios.get('http://54.156.16.123:4000/inventario/unidad')
+        const rest = await axios.get('http://34.196.59.251:4000/inventario/unidad')
         setmedid(rest.data)
     }
     const [calcular, setcalcular] = useState(false)

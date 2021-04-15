@@ -50,7 +50,7 @@ function CosteoProducto(props) {
     const hanbleBusqueda=async()=>{
         let producto = document.getElementById('buscar').value;
         let empresa = localStorage.getItem('empresa:')
-        const resp = await axios.post('http://localhost:4000/costeo/producto',{producto, empresa})
+        const resp = await axios.post('http://34.196.59.251:4000/costeo/producto',{producto, empresa})
         console.log(resp.data)
         if (resp.data === null){
             swal({
@@ -68,12 +68,12 @@ function CosteoProducto(props) {
     const [SelectProdutc, setSelectProdutc] = useState([])
     const ProdutoMP=async()=>{
         let empresa = localStorage.getItem('empresa:')
-        const resp = await axios.get('http://localhost:4000/costeo/producto/'+ empresa)
+        const resp = await axios.get('http://34.196.59.251:4000/costeo/producto/'+ empresa)
         setSelectProdutc(resp.data)
     }
     const [medida, setmedida] = useState([])
     const UnidadMedida = async () => {
-        const rest = await axios.get('http://localhost:4000/inventario/unidad')
+        const rest = await axios.get('http://34.196.59.251:4000/inventario/unidad')
         setmedida(rest.data)
     }
 
@@ -87,7 +87,7 @@ function CosteoProducto(props) {
     const GrabarCosteo=async()=>{
         let iten = JSON.parse(localStorage.getItem('Costeo:'))
         let codigo_producto_cst = localStorage.getItem('codigo_producto_cst:')
-        const resp = await axios.post('http://localhost:4000/costeo/receta',{iten, codigo_producto_cst})
+        const resp = await axios.post('http://34.196.59.251:4000/costeo/receta',{iten, codigo_producto_cst})
         if(resp.data === 'ok'){
             localStorage.removeItem('Costeo:')
             localStorage.removeItem('codigo_producto_cst:')

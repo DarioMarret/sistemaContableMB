@@ -31,7 +31,7 @@ function Rol(props) {
         let desde = id[4]
         let hasta = id[5]
         let empresa = localStorage.getItem('empresa:');
-        const rest = await axios.post('http://localhost:4000/nomina/RolCedula',{ empresa, cedula, desde, hasta })
+        const rest = await axios.post('http://34.196.59.251:4000/nomina/RolCedula',{ empresa, cedula, desde, hasta })
         setrole(rest.data)
     }
     useEffect(()=>{

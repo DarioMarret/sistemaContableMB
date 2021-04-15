@@ -27,9 +27,20 @@ function CompraMateria(props) {
 
     const hanbleGenerarPago=async()=>{
         if(n_factura_kx !== "" && codigo_proveedor_kx !== ""){
-            alert('hola')
             let iten = JSON.parse(localStorage.getItem('Local:'))
-            const rest = await axios.post('http://localhost:4000/kardex/iten',{iten, n_factura_kx, codigo_proveedor_kx, Fecha_actual})
+            let doc = document.getElementById("documento")
+            let documento = doc.value;
+            const rest = await axios.post('http://34.196.59.251:4000/kardex/iten',{
+                iten,
+                n_factura_kx, 
+                codigo_proveedor_kx,
+                Fecha_actual,
+                Tarifatotal,
+                Tarifa0,
+                Tarifa12,
+                IVA,
+                documento
+                })
             if(rest.data === 'ok'){
                 swal({
                     text: 'Insumo Con exito',
@@ -47,12 +58,27 @@ function CompraMateria(props) {
             })
         }
     }
-
-    var rest = 0.0;   
+    const [Tarifatotal, setTarifatotal] = useState("")
+    const [Tarifa12, setTarifa12] = useState("")
+    const [Tarifa0, setTarifa0] = useState("")
+    const [IVA, setIVA] = useState("")
+    var tarifa12 = 0.0;
+    var tarifa0 = 0.0;
+    var rest = 0.0;  
+    var iva = ""; 
     const [Total, setTotal] = useState("")   
+
     const VerPedido = () => {
         let Iten = JSON.parse(localStorage.getItem('Local:'))
         if(Iten){
+            const ProdIva = Iten.filter( i => i.iva !== "")
+            const Prod = Iten.filter( i => i.iva === "")
+            Prod.map(x => tarifa0 += parseFloat(x.precio_kx * x.cantidad_kx))
+            ProdIva.map(x => tarifa12 += parseFloat(x.precio_kx * x.cantidad_kx))
+            setTarifa0(tarifa0.toFixed(2))
+            setTarifa12(tarifa12.toFixed(2))
+            setIVA((Tarifa12*0.12).toFixed(2))
+            setTarifatotal(parseFloat(Tarifa12) + parseFloat(iva) + parseFloat(Tarifa0))
             Iten.map(iten => rest += parseFloat(iten.precio_kx * iten.cantidad_kx))
             setTotal(rest.toFixed(2))
             return (
@@ -62,7 +88,7 @@ function CompraMateria(props) {
                             <td>{iten.nombre_producto}</td>
                             <td style={{ width: "100px" }}><Input className="form-control" type="text" defaultValue={iten.cantidad_kx} /></td>
                             <td>{iten.medida}</td>
-                            <td>{"$"+iten.precio_kx}</td>
+                            <td>{"$"+iten.precio_kx+" "+iten.iva}</td>
                             <td><button className="btn btn-danger" onClick={()=>EliminarIdStoragen(iten.id)}>
                                 <i className="nc-icon nc-simple-remove"></i>
                             </button></td>
@@ -84,7 +110,7 @@ function CompraMateria(props) {
     const [proveedores, setproveedores] = useState([])
     const ListaProveedores=async()=>{
         let empresa = localStorage.getItem('empresa:')
-        const res = await axios.get('http://localhost:4000/proveedores/lista/'+empresa)
+        const res = await axios.get('http://34.196.59.251:4000/proveedores/lista/'+empresa)
         if(res.data.length > 0){
             setproveedores(res.data)
         }
@@ -140,14 +166,14 @@ function CompraMateria(props) {
                     
                     <Col md="4">
                         <CardHeader className="bg-info text-center">
-                            <CardTitle><h2>${Total}</h2></CardTitle>
+                            <CardTitle><h2>${Tarifatotal}</h2></CardTitle>
                         </CardHeader>
                         <CardBody>
                             <Row>
                                 <Col md="6">
                                     <FormGroup>
                                         <label>DOCUMENTO</label>
-                                        <select name="documento" className="form-control">
+                                        <select name="documento" id="documento" className="form-control">
                                             <option value="factura">FACTURA</option>
                                             <option value="ticket">TICKET</option>
                                         </select>
@@ -214,19 +240,26 @@ function CompraMateria(props) {
                             <Col md="12">
                                 <div className="d-flex justify-content-between">
                                     <h6>SUB-TOTAL</h6>
-                                    <h6>${(Total - Total*0.12).toFixed(2)}</h6>
+                                    <h6>${Total}</h6>
                                 </div>
                             </Col>
+                            <Col md="12">
+                                <div className="d-flex justify-content-between">
+                                    <h6>Tarifa 0</h6>
+                                    <h6>${Tarifa0}</h6>
+                                </div>
+                            </Col>
+                            <Col md="12">
+                                <div className="d-flex justify-content-between">
+                                    <h6>Tarifa 12</h6>
+                                    <h6>${Tarifa12}</h6>
+                                </div>
+                            </Col>
+                            
                             <Col md="12">
                                 <div className="d-flex justify-content-between">
                                     <h6>IVA (12%)</h6>
-                                    <h6>${(Total*0.12).toFixed(2)}</h6>
-                                </div>
-                            </Col>
-                            <Col md="12">
-                                <div className="d-flex justify-content-between">
-                                    <h6>TOTAL</h6>
-                                    <h6>${Total}</h6>
+                                    <h6>${iva = (Tarifa12*0.12).toFixed(2)}</h6>
                                 </div>
                             </Col>
                         </CardFooter>

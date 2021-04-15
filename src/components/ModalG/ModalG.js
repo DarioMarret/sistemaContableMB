@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
-import { Modal, ModalBody, InputGroup, InputGroupAddon,Button,Card,CardBody,FormGroup,Input,Row,Col} from 'reactstrap'
+import React, { useState, useEffect } from 'react'
+import { Modal, ModalBody, InputGroup, InputGroupAddon, Button, Card, CardBody, FormGroup, Input, Row, Col } from 'reactstrap'
 import 'bootstrap/dist/css/bootstrap.css'
 import axios from 'axios';
 import swal from 'sweetalert';
 
 const ModalG = (props) => {
-const {ListarGasto, setOpenModal, OpenModal}=props
+    const { ListarGasto, setOpenModal, OpenModal } = props
 
     const [costo, setcosto] = useState("")
     const [rubro, setrubro] = useState([])
@@ -21,13 +21,13 @@ const {ListarGasto, setOpenModal, OpenModal}=props
     const [razon, setrazon] = useState("")
     const [factura, setfactura] = useState("")
     const [fecha, setfecha] = useState("")
- 
+
     // let Totales = 0;
     const GrabarGastos = async (e) => {
         e.preventDefault()
-        const rest = await axios.post('http://54.156.16.123:4000/reporte/ingresar/gastos',{costo, fecha, rubroSelect, razon, ruc, factura, noIva, base0, base12, iva, ice, acumulador})
+        const rest = await axios.post('http://https://34.196.59.251/:4000/reporte/ingresar/gastos', { costo, fecha, rubroSelect, razon, ruc, factura, noIva, base0, base12, iva, ice, acumulador })
         console.log(rest.data);
-        if(rest.data !== "Uno o Varios Campo Vacio llenar todo los campos"){
+        if (rest.data !== "Uno o Varios Campo Vacio llenar todo los campos") {
             ListarGasto()
             Limpiar()
             setOpenModal(!OpenModal)
@@ -36,7 +36,7 @@ const {ListarGasto, setOpenModal, OpenModal}=props
                 icon: "success",
                 timer: 3000,
             })
-        }else{
+        } else {
             swal({
                 text: rest.data,
                 icon: "error",
@@ -249,25 +249,19 @@ const {ListarGasto, setOpenModal, OpenModal}=props
         }
     }
     const Rubro = async (data) => {
-        const rest = await axios.post('http://54.156.16.123:4000/gasto/rubro', { data })
+        const rest = await axios.post('http://https://34.196.59.251/:4000/gasto/rubro', { data })
         setrubro(rest.data)
     }
-    const handelnoIva = (e) => {
-        if (e) {
-            const { value } = e.target;
-            // console.log("noIva",value);
-            if(value !== 0){
-                setnoIva(value)
-                setacumulador(acumulador + parseFloat(value))
-                console.log(acumulador + parseFloat(value));
-            }
-        }
+    const handlerazon = (value) => {
+        let a = value.split(",")
+        setrazon(a[0])
+        setruc(a[1])
     }
 
     const handelbase0 = (e) => {
         if (e) {
             const { value } = e.target;
-            if(value !== 0){
+            if (value !== 0) {
                 setbase0(value)
                 setacumulador(acumulador + parseFloat(value))
                 console.log(acumulador + parseFloat(value));
@@ -277,23 +271,35 @@ const {ListarGasto, setOpenModal, OpenModal}=props
 
     const handelIva = (e) => {
         const { value } = e.target;
-        if(value.length >= 1){
+        if (value.length >= 1) {
             let rest = parseFloat(e.target.value * 0.12)
             setiva(rest.toFixed(2))
             setbase12(value)
             var total = parseFloat(rest) + parseFloat(value)
-            if(noIva.length > 0){
+            if (noIva.length > 0) {
                 total += parseFloat(noIva)
-                if(base0.length > 0){
+                if (base0.length > 0) {
                     total += parseFloat(base0)
                 }
             }
             setacumulador(total.toFixed(2))
-            console.log("acu",total);
-        }else{
+            console.log("acu", total);
+        } else {
             setacumulador(0)
         }
     }
+
+    const [proveedores, setproveedores] = useState([])
+    const ListaProveedores = async () => {
+        let empresa = localStorage.getItem('empresa:')
+        const res = await axios.get('http://https://34.196.59.251/:4000/proveedores/lista/' + empresa)
+        if (res.data.length > 0) {
+            setproveedores(res.data)
+        }
+    }
+    useEffect(() => {
+        ListaProveedores()
+    }, [])
 
     return (
         <>
@@ -370,7 +376,7 @@ const {ListarGasto, setOpenModal, OpenModal}=props
                                                     <FormGroup>
                                                         <label>RUBRO</label>
                                                         <select name="" id="rubro" className="form-control" onChange={(e) => setrubroSelect(e.target.value)}>
-                                                                <option value="">Seleccione una Opcion</option>
+                                                            <option value="">Seleccione una Opcion</option>
                                                             {
                                                                 rubro.map((iten) => (
                                                                     <>
@@ -384,11 +390,14 @@ const {ListarGasto, setOpenModal, OpenModal}=props
                                                 <Col className="pr-1" md="6">
                                                     <FormGroup>
                                                         <label>RAZON SOCIAL</label>
-                                                        <Input
-                                                            id="razon"
-                                                            type="text"
-                                                            onChange={(e) => setrazon(e.target.value)}
-                                                        />
+                                                        <select name="razon" id="razon" className="form-control" onChange={(e) => handlerazon(e.target.value)}>
+                                                            <option>Seleccione Proveedor</option>
+                                                            {
+                                                                proveedores.map((iten) => (
+                                                                    <option value={iten.razon_social+","+iten.ruc}>{iten.razon_social}</option>
+                                                                ))
+                                                            }
+                                                        </select>
                                                     </FormGroup>
                                                 </Col>
                                                 <Col className="pr-1" md="3">
@@ -396,15 +405,17 @@ const {ListarGasto, setOpenModal, OpenModal}=props
                                                         <label htmlFor="exampleInputEmail1">
                                                             CI/RUC:
                                                             </label>
-                                                        <Input id="ruc" type="text"
-                                                            onChange={(e) => setruc(e.target.value)}
+                                                        <Input 
+                                                        id="ruc" 
+                                                        type="text"
+                                                        defaultValue={ruc}
                                                         />
                                                     </FormGroup>
                                                 </Col>
                                                 <Col className="pr-1" md="3">
                                                     <FormGroup>
                                                         <label htmlFor="exampleInputEmail1">
-                                                           FECHA
+                                                            FECHA
                                                             </label>
                                                         <Input id="fecha" type="date"
                                                             onChange={(e) => setfecha(e.target.value)}
@@ -421,7 +432,7 @@ const {ListarGasto, setOpenModal, OpenModal}=props
                                                         />
                                                     </FormGroup>
                                                 </Col>
-                                                
+
                                             </Row>
                                             <Row>
                                                 <Col className="pl-1" md="3">
@@ -431,7 +442,7 @@ const {ListarGasto, setOpenModal, OpenModal}=props
                                                             <InputGroupAddon addonType="prepend">$</InputGroupAddon>
                                                             <Input
                                                                 id="noIva"
-                                                                onChange={(e) => setnoIva(e.target.value) }
+                                                                onChange={(e) => setnoIva(e.target.value)}
                                                                 defaultValue={noIva}
                                                                 type="text"
                                                             />
@@ -499,10 +510,10 @@ const {ListarGasto, setOpenModal, OpenModal}=props
                                                             <label>TOTAL</label>
                                                             <InputGroup>
                                                                 <InputGroupAddon addonType="prepend">$</InputGroupAddon>
-                                                                <Input 
-                                                                defaultValue={acumulador === 0 || acumulador === NaN ? "" : acumulador}
-                                                                onChange={(e) =>setacumulador(e.target.value)}
-                                                                 />
+                                                                <Input
+                                                                    defaultValue={acumulador === 0 || acumulador === NaN ? "" : acumulador}
+                                                                    onChange={(e) => setacumulador(e.target.value)}
+                                                                />
                                                             </InputGroup>
                                                         </FormGroup>
                                                     </Col>

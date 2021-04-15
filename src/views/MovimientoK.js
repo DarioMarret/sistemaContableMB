@@ -1,6 +1,10 @@
-import React, {useEffect, useState, useRef, forwardRef} from 'react';
+import React, { forwardRef, useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom'
-import { Card, CardHeader, CardBody, CardFooter, Row, Col } from 'reactstrap'
+import { Card, Col } from "reactstrap";
+import axios from 'axios';
+
+import MaterialTable from 'material-table'
+
 import Edit from '@material-ui/icons/Edit'
 import DeleteOutline from '@material-ui/icons/DeleteOutline'
 import Search from '@material-ui/icons/Search'
@@ -16,12 +20,12 @@ import LastPage from '@material-ui/icons/LastPage';
 import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import ViewColumn from '@material-ui/icons/ViewColumn';
-import { Delete } from '@material-ui/icons'
-import axios from 'axios';
-import  MaterialTable from 'material-table'
 
-function Proveedores(props) {
-    const { history }=props
+
+function MovimientoK(props) {
+    const { location, history } = props
+
+
     const tableIcons = {
         Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
         Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
@@ -41,73 +45,93 @@ function Proveedores(props) {
         ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
         ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
     }
+
     const columnas = [
-
         {
-            title: 'RUC',
-            field: 'ruc',
+            title: 'Fecha', 
+            field: 'fecha',
+            type:'date'
         },
         {
-            title: 'Razon Social',
-            field: 'razon_social',
+            title: 'Producto',
+            field: 'producto_mp',
         },
         {
-            title: 'Email',
-            field: 'email'
+            title: 'U. Medida',
+            field: 'medida',
         },
         {
-            title: 'Direccion',
-            field: 'direccion',
+            title: 'Factura',
+            field: 'n_factura_kx',
         },
         {
-            title: 'Telefono',
-            field: 'telefono',
-        }
+            title: 'P. Promedio',
+            field: 'precio_kx',
+            render: rowData => rowData.precio_kx.toFixed(2)
+        },
+        {
+            title: 'Egreso',
+            field: 'cat_venta_kc',
+        },
+        {
+            title: 'Ingreso',
+            field: 'cat_compra_kx',
+        },
+        {
+            title: 'Saldo',
+            render: rowData => rowData.cantidad_kx  
+        },
     ]
-    const [proveedores, setproveedores] = useState([])
-    const ListaProveedores=async()=>{
-        let empresa = localStorage.getItem('empresa:')
-        const res = await axios.get('http://34.196.59.251:4000/proveedores/lista/'+empresa)
-        if(res.data.length > 0){
-            setproveedores(res.data)
-        }
-    }
-    useEffect(()=>{
-        ListaProveedores()
-    },[])
 
+    const [productK, setproductK] = useState([])
+    const ListarkardexP=async()=>{
+        let path = location.pathname
+        let id = path.split("/")
+        let codigo=id[3]
+        let empresa = localStorage.getItem('empresa:')
+        const {data} = await axios.post('http://34.196.59.251:4000/kardex/listaProduct',{empresa, codigo})
+        console.log(data)
+        setproductK(data)
+    }
+    useEffect(() => {
+        ListarkardexP()
+    },[])
     return (
         <div className="content">
-            <Card className="p-2">
-                <Col className="justify-content-start">
-                    <button className="btn btn-primary" onClick={()=>history.push('/admin/NuevoProveedor')}>Nuevo Proveedor</button>
+            <Card className="">
+                <Col className="justify-content-start p-2">
+                    <button className="btn btn-primary" onClick="">Saldo Inicial</button>
                 </Col>
             </Card>
             <Card>
-            <MaterialTable
-                    title="Lista de Proveedores"
+                <MaterialTable columns={columnas}
+                    title="Kardex"
+                    data={productK}
                     icons={tableIcons}
-                    columns={columnas}
-                    data={proveedores}
                     actions={[
                         {
-                            icon: () => <Edit />,
-                            tooltip: "Editar",
-                            onClick: (event, rowData) => history.push("/admin/proveedoresEdit/"+rowData.id)
+                            icon: () => <ChevronRight />,
+                            tooltip: "Ver-Movimientos",
+                            onClick: (event, rowData) => history.push("/admin/kardexEdit/"+rowData.codigo_producto_kx)
                         },
-                        {
-                            icon: () => <Delete />,
-                            tooltip: "Eliminar",
-                            onClick: (event, rowData) => alert("Eliminar producto")
-                        }
                     ]}
                     options={{
-                        pageSize:10,
+                        headerStyle: {
+                            backgroundColor: '#51cbce',
+                            color: '#313131',
+                            fontSize: '16px',
+                            fontWeight: 'bold',
+                        },
+                        bodyStyle: {
+                            padding: '0'
+                        },
+                        pageSize:20,
                     }}
                 />
             </Card>
+
         </div>
     );
 }
 
-export default withRouter(Proveedores);
+export default withRouter(MovimientoK);

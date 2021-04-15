@@ -27,7 +27,7 @@ export default function ModalPE(state = dataInicial, action) {
 //acciones
 export const ObtenerProductosAccion = (id) => async (dispatch, getState) => {
     try {
-        const rest = await axios.put('http://54.156.16.123:4000/inventario/actualizar', { id })
+        const rest = await axios.put('http://34.196.59.251:4000/inventario/actualizar', { id })
         dispatch({
             type: OBTENER_PRODUCTO,
             payload: rest.data
@@ -38,7 +38,7 @@ export const ObtenerProductosAccion = (id) => async (dispatch, getState) => {
 }
 export const ActualizarProducto = (productoE) => async (dispatch, getState) => {
     try {
-        const rest = await axios.put('http://54.156.16.123:4000/inventario/actualizar', { productoE })
+        const rest = await axios.put('http://34.196.59.251:4000/inventario/actualizar', { productoE })
         dispatch({
             type: ACTUALIZAR,
             payload: rest.data
